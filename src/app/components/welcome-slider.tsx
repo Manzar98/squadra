@@ -115,7 +115,7 @@ export function WelcomeSlider() {
       {selectedMember && (
         <div className="mb-20 text-center">
           <p className="text-[16px] font-[600] text-[#2B2C2B] tracking-[0.15px] font-body">
-            &apos;You have selected {selectedMember.name}&apos;
+          &apos;You have selected {selectedMember.name}&apos;
           </p>
         </div>
       )}
@@ -239,10 +239,10 @@ export function WelcomeSlider() {
 
         <div className="mb-15">
           <h5 className="text-[24px] text-black mb-8 text-center font-heading">
-            Way to go!! With this simple gesture, your Squad can celebrate moving one step closer to Mastery!
+            Way to go!! With this simple gesture&lsquo; your Squad can celebrate moving one step closer to Mastery!
           </h5>
           <h5 className="text-[24px] text-black mb-8 text-center font-heading">
-            Now, as your Squadmates give you Moments, your Mastery Zones will magically unlock and ignite the Squad's Quest too!
+            Now&lsquo; as your Squadmates give you Moments&lsquo; your Mastery Zones will magically unlock and ignite the Squad&apos;s Quest too!
           </h5>
         </div>
 
@@ -263,7 +263,7 @@ export function WelcomeSlider() {
 
   return (
     <>
-      <div className="flex flex-1 item-center p-[1.5rem] justify-center">
+      <div className="flex flex-1 items-center p-[1.5rem] justify-center">
         <div className="bg-white w-full h-full flex flex-col rounded-[6px] border-gray-200 pt-[3rem]">
           {showSuccessScreen ? renderSuccessScreen() : (
             <>

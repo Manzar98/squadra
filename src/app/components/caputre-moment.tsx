@@ -3,11 +3,10 @@
 import type React from "react"
 
 import { useState } from "react"
-import { Sidebar } from "../components/sidebar"
 import { FuzzyDropdown } from "../components/fuzzy-dropdown"
 import { Button } from "../components/ui/button"
 import { useRouter } from "next/navigation"
-import { CustomDropdown, DropdownItem, DropdownSeparator } from "./drop-down"
+import { CustomDropdown, DropdownItem } from "./drop-down"
 
 export default function CaptureAMoment() {
     const router = useRouter()
@@ -52,11 +51,11 @@ export default function CaptureAMoment() {
         "😊 You were really thoughtful!",
     ]
 
-    const handleSubmit = () => {
-        // Store the form data and navigate to details page
-        localStorage.setItem("submittedMoment", JSON.stringify(formData))
-        router.push("/dashboard/moment-details")
-    }
+    // const handleSubmit = () => {
+    //     // Store the form data and navigate to details page
+    //     localStorage.setItem("submittedMoment", JSON.stringify(formData))
+    //     router.push("/dashboard/moment-details")
+    // }
 
     const handleNoteChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         const value = e.target.value
