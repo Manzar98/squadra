@@ -83,9 +83,9 @@ export default function CaptureAMoment() {
     }
 
     return (
-        <div className="flex flex-1 flex-col item-center px-[1.5rem] pb-[3.9rem] justify-center">
-            <div className="flex justify-between items-center align-middle my-[1.28rem]">
-                <h4 className="text-[34px] font-[600] text-gray-900 tracking-[0.25px]">Capture a Moment of Flow</h4>
+        <div className="mt-10 lg:mt-0 flex flex-1 flex-col item-center px-[1.5rem] pb-[3.9rem] justify-center">
+            <div className="flex justify-between items-center align-middle mt-[1.25rem] mb-[1.1875rem]">
+                <h4 className="lg:text-[34px] font-[600] text-gray-900 tracking-[0.25px]">Capture a Moment of Flow</h4>
                 <CustomDropdown
                     align="right"
                     trigger={
@@ -163,7 +163,7 @@ export default function CaptureAMoment() {
                                     key={reaction}
                                     onClick={() => setFormData({ ...formData, reaction })}
                                     className={`px-6 py-3 rounded-full border-2 border-[#A3A4A3] text-[18px] text-[#A3A4A3] font-body font-[500] transition-colors ${formData.reaction === reaction
-                                        ? "bg-green-500 text-white border-green-500"
+                                        ? "bg-green-50 text-green-500 border-green-500"
                                         : "bg-white text-gray-700 border-gray-300 hover:border-gray-400"
                                         }`}
                                 >
@@ -179,7 +179,7 @@ export default function CaptureAMoment() {
                                 value={formData.note}
                                 onChange={handleNoteChange}
                                 placeholder="A personal note makes your encouragement more meaningful and adding specific context helps them reflect on what they did so they can build on it."
-                                className="w-[31.39vw] h-[15.33vh] px-4 py-3 border border-gray-300 rounded-xl text-[16px] font-[600] text-black font-body placeholder-[#A3A4A3] resize-none focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent font-body"
+                                className="w-full lg:w-[52%] h-[15.33vh] px-4 py-3 border border-gray-300 rounded-xl text-[16px] font-[600] text-black font-body placeholder-[#A3A4A3] resize-none focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent font-body"
                             />
                             <div className="text-[12px] text-gray-400">{formData.note.length}/400</div>
                         </div>

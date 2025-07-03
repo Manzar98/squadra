@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { useState, useRef, useEffect } from "react"
 import { ChevronDown } from "lucide-react"
 
@@ -25,37 +24,34 @@ export function FuzzyDropdown({
   isShow,
 }: FuzzyDropdownProps) {
   const [isOpen, setIsOpen] = useState(false)
-  const [searchTerm, setSearchTerm] = useState("")
+  const [searchTerm, setSearchTerm] = useState(value)
   const [highlightedIndex, setHighlightedIndex] = useState(-1)
   const dropdownRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
-  const [hydrated, setHydrated] = useState(false)
 
-  // Ensure the component is only interactive after hydration
-  useEffect(() => {
-    setHydrated(true)
-  }, [])
-
-  // Keep searchTerm in sync with value prop (for controlled input)
+  // Keep searchTerm in sync with value prop
   useEffect(() => {
     setSearchTerm(value)
   }, [value])
 
-  // Only attach event listeners after hydration
+  // Handle click outside to close dropdown
   useEffect(() => {
-    if (!hydrated) return
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      const target = event.target as HTMLElement
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(target)
+      ) {
         setIsOpen(false)
       }
     }
     document.addEventListener("mousedown", handleClickOutside)
     return () => document.removeEventListener("mousedown", handleClickOutside)
-  }, [hydrated])
+  }, [])
 
-  const filteredOptions = hydrated
-    ? options.filter((option) => option.toLowerCase().includes(searchTerm.toLowerCase()))
-    : []
+  const filteredOptions = options.filter((option) =>
+    option.toLowerCase().includes(searchTerm.toLowerCase())
+  )
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value)
@@ -70,11 +66,9 @@ export function FuzzyDropdown({
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (!isOpen) {
-      if (e.key === "ArrowDown" || e.key === "Enter") {
-        setIsOpen(true)
-        return
-      }
+    if (!isOpen && (e.key === "ArrowDown" || e.key === "Enter")) {
+      setIsOpen(true)
+      return
     }
 
     switch (e.key) {
@@ -101,34 +95,6 @@ export function FuzzyDropdown({
         inputRef.current?.blur()
         break
     }
-  }
-
-  // Prevent rendering interactive dropdown until hydrated
-  if (!hydrated) {
-    return (
-      <div className={`relative ${className}`}>
-        {label && (
-          <label className="block text-[16px] text-left font-[600] text-[#5B5C5B] mb-2 font-body tracking-[0.15px]">
-            {label}
-          </label>
-        )}
-        <div className="relative">
-          <input
-            ref={inputRef}
-            type="text"
-            value={value}
-            readOnly
-            placeholder={placeholder}
-            className="w-full px-4 py-3 pr-10 border border-gray-300 rounded-lg text-[16px] font-[600] text-black font-body placeholder-[#A3A4A3] focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-          />
-          {isShow && (
-            <ChevronDown
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#A3A4A3]"
-            />
-          )}
-        </div>
-      </div>
-    )
   }
 
   return (
