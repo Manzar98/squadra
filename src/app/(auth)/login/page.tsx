@@ -64,7 +64,7 @@ export default function LoginPage() {
             <h6 className="text-[20px] font-body tracking-[0.12px] font-[700] py-10 text-center lg:text-left">Sign in to your account</h6>
             <form className="">
               {/* Email Field */}
-              <div className={`mb-[1.88rem]${emailError ? " mb-[1rem]" : ""}`}>
+              <div className={emailError ? "mb-[0.6rem]" : "mb-[1.88rem]"}>
                 <Input
                   type="email"
                   placeholder="Email address"
@@ -82,7 +82,7 @@ export default function LoginPage() {
               </div>
 
               {/* Password Field */}
-              <div className="mb-[3.12rem]">
+              <div className="mb-7">
                 <div className="relative">
                   <Input
                     type={showPassword ? "text" : "password"}
@@ -127,7 +127,7 @@ export default function LoginPage() {
             </form>
 
             {/* Sign Up Link */}
-            <div className="mt-10 text-center lg:text-left lg:mt-22">
+            <div className="mt-10 text-center lg:text-left lg:mt-24.5">
               <p className="text-sm lg:text-[16px] font-[600] tracking-[0.15px] font-body text-black">
                 Don’t have an account yet?{" "}
                 <button className="text-[#00A600] font-[600] hover:underline transition-all">
