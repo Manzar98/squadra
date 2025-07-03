@@ -1,0 +1,8 @@
+{
+  "zeplin": {
+    "command": "npx -y @zeplin/mcp-server@latest",
+    "env": {
+      "ZEPLIN_ACCESS_TOKEN": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJOeXB]"
+    }
+  }
+}

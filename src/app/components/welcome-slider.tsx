@@ -1,73 +1,86 @@
 "use client"
 
 import { useState } from "react"
+import { useSelector } from "react-redux"
 import { Button } from "../components/ui/button"
 import { Check, MessageSquareTextIcon } from "lucide-react"
 import { InviteModal } from "./invite-modal"
-import { useSelector } from "react-redux"
 import { selectTeamMembers, type TeamMember } from "../../store"
 
 export function WelcomeSlider() {
   const [currentSlide, setCurrentSlide] = useState(0)
+  const [isInviteModalOpen, setIsInviteModalOpen] = useState(false)
+  const [showSuccessScreen, setShowSuccessScreen] = useState(false)
+
   const teamMembers = useSelector(selectTeamMembers)
   const [selectedMember, setSelectedMember] = useState<TeamMember | null>(
-    teamMembers.find((member: TeamMember) => member.selected) || null,
+    teamMembers.find((member: TeamMember) => member.selected) || null
   )
-  const [isInviteModalOpen, setIsInviteModalOpen] = useState(false)
-  const [selectedSkill, setSelectedSkill] = useState<string>("Communication")
-  const [noteText, setNoteText] = useState<string>(
-    "You did great on the last training session. The content was so useful! You did great on the last training session",
+
+  const [selectedSkill, setSelectedSkill] = useState("Communication")
+  const [noteText, setNoteText] = useState(
+    "You did great on the last training session. The content was so useful! You did great on the last training session"
   )
-  const emojis = ["👍", "✌️", "👏", "👌", "🤘", "😊", "😍", "😂", "🤑", "😎"]
-  const [selectedEmoji, setSelectedEmoji] = useState<string>("😎")
+  const [selectedEmoji, setSelectedEmoji] = useState("😎")
 
   const skills = [
-    "Collaboration",
-    "Openness",
-    "Innovation",
-    "Adaptable",
-    "Growth mindset",
-    "Resilience",
-    "Empathy",
-    "Optimism",
-    "Insightfulness",
-    "Methodical",
-    "Purpose driven",
-    "Giver",
-    "Organised",
-    "Curiosity",
-    "Humility",
-    "Risk management",
-    "Communication",
-    "Resolving conflict",
-    "Conscientious",
-    "Enthusiastic",
+    "Collaboration", "Openness", "Innovation", "Adaptable", "Growth mindset", "Resilience",
+    "Empathy", "Optimism", "Insightfulness", "Methodical", "Purpose driven", "Giver",
+    "Organised", "Curiosity", "Humility", "Risk management", "Communication",
+    "Resolving conflict", "Conscientious", "Enthusiastic"
   ]
+
+  const emojis = ["👍", "✌️", "👏", "👌", "🤘", "😊", "😍", "😂", "🤑", "😎"]
 
   const selectMember = (member: TeamMember) => {
     setSelectedMember(member)
-    // Optionally, you could dispatch an action to update selected in Redux
   }
 
-  const nextSlide = () => {
-    setCurrentSlide((prev) => (prev + 1) % 3)
+  const nextSlide = () => setCurrentSlide((prev) => (prev + 1) % 3)
+
+  const handleSubmit = () => {
+    console.log("Submitting moment:", {
+      member: selectedMember,
+      skill: selectedSkill,
+      note: noteText,
+      emoji: selectedEmoji,
+    })
+    setShowSuccessScreen(true)
   }
+
+  const renderPaginationDots = () => (
+    <div className="flex justify-center space-x-2 mb-8">
+      {[0, 1, 2].map((index) => (
+        <button
+          key={index}
+          onClick={() => setCurrentSlide(index)}
+          className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium cursor-pointer transition-colors border ${
+            index <= currentSlide
+              ? "bg-green-500 border-2 border-black text-black"
+              : "bg-gray-200 text-gray-500 hover:bg-gray-300 border-black text-black"
+          }`}
+        >
+          {index + 1}
+        </button>
+      ))}
+    </div>
+  )
 
   const renderFirstSlide = () => (
-    <div className="max-w-2xl mx-auto">
-      {/* Header */}
-      <div className="mb-8 mt-2">
+    <div className="max-w-4xl mx-auto">
+      <div className="mb-[1.5rem]">
         <div className="flex items-center justify-center gap-3 mb-12">
           <MessageSquareTextIcon className="w-8 h-8 text-black bg-green-500" />
           <h1 className="text-[34px] font-[600] text-black">Give a Moment of Mastery now!</h1>
         </div>
-        <p className="text-[24px] text-black mb-8 mt-[100px] font-heading">Which squadmate are you thinking of?</p>
+        <h5 className="text-[24px] text-black mb-8 mt-[5.125rem] text-center font-heading">
+          Which squadmate are you thinking of?
+        </h5>
       </div>
 
-      {/* Team Member Selection */}
-      <div className="mb-6">
-        <div className="bg-white border border-gray-200 rounded-lg max-w-md mx-auto max-h-48 overflow-y-auto">
-          {teamMembers.map((member: TeamMember, index: number) => (
+      <div className="mb-[1rem]">
+        <div className="bg-white border border-gray-200 rounded-md w-[20.56vw] mx-auto h-[21.33vh] overflow-y-auto">
+          {teamMembers.map((member, index) => (
             <div
               key={member.id}
               onClick={() => selectMember(member)}
@@ -79,7 +92,7 @@ export function WelcomeSlider() {
                 <div className="font-medium text-gray-900">{member.name}</div>
                 <div className="text-sm text-gray-500">{member.email}</div>
               </div>
-              {selectedMember && member.id === selectedMember.id && (
+              {selectedMember?.id === member.id && (
                 <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
                   <Check className="w-4 h-4 text-white" />
                 </div>
@@ -89,46 +102,31 @@ export function WelcomeSlider() {
         </div>
       </div>
 
-      {/* Invite Button */}
-      <div className="mb-6">
+      <div className="mb-5 text-center">
         <Button
           onClick={() => setIsInviteModalOpen(true)}
           variant="outline"
-          className="w-[302px] h-[56px] border-green-500 text-green-600 hover:bg-green-50 font-medium rounded-full px-8 py-2 text-[14px] tracking-[0.75px] font-[700] font-heading"
+          className="w-[20.97vw] h-[6.22vh] border-2 border-green-500 text-green-600 hover:bg-green-50 rounded-full px-4 py-5 text-[14px] tracking-[0.75px] font-[700] font-heading"
         >
           INVITE NEW SQUADMATE
         </Button>
       </div>
 
-      {/* Selected Member Display */}
       {selectedMember && (
-        <div className="mb-8">
+        <div className="mb-20 text-center">
           <p className="text-[16px] font-[600] text-[#2B2C2B] tracking-[0.15px] font-body">
             &apos;You have selected {selectedMember.name}&apos;
           </p>
         </div>
       )}
 
-      {/* Pagination dots */}
-      <div className="flex justify-center space-x-2 mb-8">
-        {[0, 1, 2].map((index) => (
-          <button
-            key={index}
-            onClick={() => setCurrentSlide(index)}
-            className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium cursor-pointer transition-colors ${
-              index === currentSlide ? "bg-green-500 text-white" : "bg-gray-200 text-gray-500 hover:bg-gray-300"
-            }`}
-          >
-            {index + 1}
-          </button>
-        ))}
-      </div>
+      {renderPaginationDots()}
 
-      {/* Next Button - Centered */}
       <div className="flex justify-center">
+        
         <Button
           onClick={nextSlide}
-          className="w-[300px] h-[56px] bg-green-500 hover:bg-green-600 text-black font-[700] px-8 py-3 rounded-full text-[14px] font-heading tracking-[0.75px]"
+          className="w-75 h-14 bg-green-500 hover:bg-green-600 text-black font-[700] px-5 py-4 rounded-full text-[14px] font-heading tracking-[0.75px]"
         >
           NEXT: CHOOSE A SKILL
         </Button>
@@ -138,21 +136,19 @@ export function WelcomeSlider() {
 
   const renderSecondSlide = () => (
     <div className="max-w-4xl mx-auto">
-      {/* Header */}
-      <div className="mb-8 mt-2">
+      <div className="mb-6">
         <div className="flex items-center justify-center gap-3 mb-12">
           <MessageSquareTextIcon className="w-8 h-8 text-black bg-green-500" />
           <h1 className="text-[34px] font-[600] text-black">
             Give {selectedMember?.name || "[selected user]"} a Moment of Mastery
           </h1>
         </div>
-        <p className="text-[24px] text-black mb-8 mt-[100px] font-heading">
+        <h5 className="text-[24px] text-black mt-[5.125rem] text-center font-heading">
           In which skill did they crush it recently?
-        </p>
+        </h5>
       </div>
 
-      {/* Skills Selection */}
-      <div className="mb-12">
+      <div className="mb-[10.7rem]">
         <div className="flex flex-wrap justify-center gap-3 max-w-5xl mx-auto">
           {skills.map((skill) => (
             <button
@@ -170,30 +166,13 @@ export function WelcomeSlider() {
         </div>
       </div>
 
-      {/* Pagination dots */}
-      <div className="flex justify-center space-x-2 mb-8">
-        {[0, 1, 2].map((index) => (
-          <button
-            key={index}
-            onClick={() => setCurrentSlide(index)}
-            className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium cursor-pointer transition-colors ${
-              index < currentSlide
-                ? "bg-green-500 text-white"
-                : index === currentSlide
-                  ? "bg-green-500 text-white"
-                  : "bg-gray-200 text-gray-500 hover:bg-gray-300"
-            }`}
-          >
-            {index + 1}
-          </button>
-        ))}
-      </div>
+      {renderPaginationDots()}
 
-      {/* Next Button - Centered */}
       <div className="flex justify-center">
+        
         <Button
           onClick={nextSlide}
-          className="w-[300px] h-[56px] bg-green-500 hover:bg-green-600 text-black font-[700] px-8 py-3 rounded-full text-[14px] font-heading tracking-[0.75px]"
+          className="w-75 h-14 bg-green-500 hover:bg-green-600 text-black font-[700] px-5 py-4 rounded-full text-[14px] font-heading tracking-[0.75px]"
         >
           NEXT: ADD A SHORT NOTE
         </Button>
@@ -203,27 +182,26 @@ export function WelcomeSlider() {
 
   const renderThirdSlide = () => (
     <div className="max-w-4xl mx-auto">
-      {/* Header */}
-      <div className="mb-8 mt-2">
+      <div className="mb-[1.5rem]">
         <div className="flex items-center justify-center gap-3 mb-12">
           <MessageSquareTextIcon className="w-8 h-8 text-black bg-green-500" />
           <h1 className="text-[34px] font-[600] text-black">Give a Moment of Mastery</h1>
         </div>
-        <p className="text-[24px] text-black mb-8 mt-[100px] font-heading">Why was the Moment of Mastery special?</p>
+        <h5 className="text-[24px] text-black mb-8 mt-[5.125rem] text-center font-heading">
+          Why was the Moment of Mastery special?
+        </h5>
       </div>
 
-      {/* Note Text Area */}
-      <div className="mb-8">
+      <div className="mb-6">
         <textarea
           value={noteText}
           onChange={(e) => setNoteText(e.target.value)}
-          className="w-full max-w-2xl mx-auto h-32 p-4 border-2 border-green-500 rounded-lg resize-none text-gray-700 text-base leading-relaxed"
+          className="w-full max-w-[80vw] mx-auto h-34 p-4 border-2 border-green-500 rounded-lg resize-none text-gray-400 text-base leading-relaxed font-body text-[1rem] font-[600]"
           placeholder="Add your note here..."
         />
       </div>
 
-      {/* Emoji Selection */}
-      <div className="mb-12">
+      <div className="mb-42">
         <div className="flex justify-center gap-4 flex-wrap">
           {emojis.map((emoji) => (
             <button
@@ -239,34 +217,12 @@ export function WelcomeSlider() {
         </div>
       </div>
 
-      {/* Pagination dots */}
-      <div className="flex justify-center space-x-2 mb-8">
-        {[0, 1, 2].map((index) => (
-          <button
-            key={index}
-            onClick={() => setCurrentSlide(index)}
-            className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium cursor-pointer transition-colors ${
-              index <= currentSlide ? "bg-green-500 text-white" : "bg-gray-200 text-gray-500 hover:bg-gray-300"
-            }`}
-          >
-            {index + 1}
-          </button>
-        ))}
-      </div>
+      {renderPaginationDots()}
 
-      {/* Submit Button - Centered */}
       <div className="flex justify-center">
         <Button
-          onClick={() => {
-            // Handle submission logic here
-            console.log("Submitting moment:", {
-              member: selectedMember,
-              skill: selectedSkill,
-              note: noteText,
-              emoji: selectedEmoji,
-            })
-          }}
-          className="w-[300px] h-[56px] bg-green-500 hover:bg-green-600 text-black font-[700] px-8 py-3 rounded-full text-[14px] font-heading tracking-[0.75px]"
+          onClick={handleSubmit}
+          className="w-75 h-14 bg-green-500 hover:bg-green-600 text-black font-[700] px-5 py-4 rounded-full text-[14px] font-heading tracking-[0.75px]"
         >
           SUBMIT MOMENT
         </Button>
@@ -274,27 +230,50 @@ export function WelcomeSlider() {
     </div>
   )
 
-  return (
-    <>
-      <div className="flex-1 p-6 flex items-center justify-center relative">
-        <div className="bg-white rounded-lg border border-gray-200 shadow-sm w-full h-full flex-col items-center justify-center text-center p-8">
-          {currentSlide === 0 && renderFirstSlide()}
-          {currentSlide === 1 && renderSecondSlide()}
-          {currentSlide === 2 && renderThirdSlide()}
+  const renderSuccessScreen = () => (
+    <div className="max-w-4xl mx-auto">
+      <div className="flex flex-col items-center justify-center text-center">
+        <div className="mb-6 w-[23.26vw] h-[37.22vh] flex items-center justify-center">
+          <div className="text-[170px] leading-none">🥳</div>
         </div>
 
-        {/* Skip Button - Positioned absolutely on the left, aligned with Next button */}
-        <Button
-          variant="ghost"
-          className={`absolute text-gray text-[16px] left-8 tracking-[0.15px] font-body ${
-            currentSlide === 0 ? "bottom-[170px]" : "bottom-[205px]"
-          }`}
-          onClick={() => setCurrentSlide(2)}
-        >
-          SKIP
-        </Button>
-      </div>
+        <div className="mb-15">
+          <h5 className="text-[24px] text-black mb-8 text-center font-heading">
+            Way to go!! With this simple gesture, your Squad can celebrate moving one step closer to Mastery!
+          </h5>
+          <h5 className="text-[24px] text-black mb-8 text-center font-heading">
+            Now, as your Squadmates give you Moments, your Mastery Zones will magically unlock and ignite the Squad's Quest too!
+          </h5>
+        </div>
 
+        <div className="flex justify-center">
+          <Button
+            onClick={() => {
+              setShowSuccessScreen(false)
+              setCurrentSlide(0)
+            }}
+            className="w-50 h-14 bg-green-500 hover:bg-green-600 text-black font-[700] rounded-full text-[14px] font-heading tracking-[0.75px]"
+          >
+            EXPLORE SQUADRA!
+          </Button>
+        </div>
+      </div>
+    </div>
+  )
+
+  return (
+    <>
+      <div className="flex flex-1 item-center p-[1.5rem] justify-center">
+        <div className="bg-white w-full h-full flex flex-col rounded-[6px] border-gray-200 pt-[3rem]">
+          {showSuccessScreen ? renderSuccessScreen() : (
+            <>
+              {currentSlide === 0 && renderFirstSlide()}
+              {currentSlide === 1 && renderSecondSlide()}
+              {currentSlide === 2 && renderThirdSlide()}
+            </>
+          )}
+        </div>
+      </div>
       <InviteModal isOpen={isInviteModalOpen} onClose={() => setIsInviteModalOpen(false)} />
     </>
   )

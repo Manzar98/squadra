@@ -1,7 +1,15 @@
+"use client"
 import Image from "next/image"
 import { Button } from "../components/ui/button"
+import { useRouter } from "next/navigation"
 
 export function Sidebar() {
+  const router = useRouter()
+
+  const handleGiveAMoment = () => {
+    router.push("/dashboard/give-moment")
+  }
+
   return (
     <div className="w-64 h-screen bg-white border-r border-gray-200 flex flex-col">
       {/* Logo */}
@@ -18,7 +26,7 @@ export function Sidebar() {
 
       {/* Give a moment button */}
       <div className="px-6 pb-6">
-        <Button className="w-full bg-green-500 hover:bg-green-600 text-black rounded-full font-bold text-[14px] tracking-[0.75px]">
+        <Button className="w-full bg-green-500 hover:bg-green-600 text-black rounded-full font-bold text-[14px] tracking-[0.75px]" onClick={handleGiveAMoment}>
           GIVE A MOMENT
         </Button>
       </div>
