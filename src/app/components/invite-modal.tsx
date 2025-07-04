@@ -1,10 +1,11 @@
 "use client"
+
 import { useState } from "react"
 import { Button } from "../components/ui/button"
 import { Input } from "../components/ui/input"
-import { X, Plus } from "lucide-react"
+import { X, PlusCircle } from "lucide-react"
 import { useDispatch } from "react-redux"
-import { addMember, TeamMember } from "../../store"
+import { addMember, type TeamMember } from "../../store"
 
 interface InviteField {
   id: string
@@ -33,12 +34,12 @@ export function InviteModal({ isOpen, onClose }: InviteModalProps) {
   const updateField = (id: string, field: "email" | "name", value: string) => {
     setInviteFields(inviteFields.map((item) => (item.id === id ? { ...item, [field]: value } : item)))
   }
+
   const handleSend = () => {
-    
     inviteFields.forEach((field) => {
       if (field.email) {
         const newMember: TeamMember = {
-          id: field.id+1,
+          id: field.id + 1,
           name: field.name,
           email: field.email,
         }
@@ -52,38 +53,45 @@ export function InviteModal({ isOpen, onClose }: InviteModalProps) {
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 bg-black/10 backdrop-blur-sm flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-full max-w-2xl mx-4">
+    <div className="fixed inset-0 bg-black/10 backdrop-blur-sm flex items-center justify-center z-50 p-3 sm:p-4 lg:p-0">
+      <div className="bg-white rounded-lg p-4 sm:p-5 lg:p-6 w-full max-w-sm sm:max-w-lg lg:max-w-2xl xl:max-w-4xl mx-2 sm:mx-4 max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-gray-900">Invite people to Squadra</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
-            <X className="w-6 h-6" />
+        <div className="flex justify-between items-center mb-4 sm:mb-5 lg:mb-7.5">
+          <h4 className="text-lg sm:text-xl lg:text-2xl font-bold text-black pr-4">Invite people to Squadra</h4>
+          <button
+            onClick={onClose}
+            className="text-black flex-shrink-0 p-1 hover:bg-gray-100 rounded-full transition-colors"
+          >
+            <X className="w-4 h-4 sm:w-5 sm:h-5 font-bold" />
           </button>
         </div>
 
         {/* Form Fields */}
-        <div className="space-y-4 mb-6">
+        <div className="space-y-3 sm:space-y-4 mb-4 sm:mb-5 lg:mb-6">
           {inviteFields.map((field, index) => (
-            <div key={field.id} className="grid grid-cols-2 gap-4">
+            <div key={field.id} className="flex flex-col sm:grid sm:grid-cols-2 gap-3 sm:gap-4">
               <div>
-                {index === 0 && <label className="block text-sm font-medium text-gray-700 mb-2">Email address</label>}
+                <label className="block text-sm sm:text-base lg:text-[16px] text-left font-semibold sm:font-[600] text-[#5B5C5B] mb-1.5 sm:mb-2 font-body">
+                  Email address
+                </label>
                 <Input
                   type="email"
                   placeholder="user1@email.com"
                   value={field.email}
                   onChange={(e) => updateField(field.id, "email", e.target.value)}
-                  className="w-full"
+                  className="pl-3 sm:pl-4 py-2.5 sm:py-3 font-body h-10 sm:h-12 lg:h-[55%] text-sm sm:text-base"
                 />
               </div>
               <div>
-                {index === 0 && <label className="block text-sm font-medium text-gray-700 mb-2">Name (optional)</label>}
+                <label className="block text-sm sm:text-base lg:text-[16px] text-left font-semibold sm:font-[600] text-[#5B5C5B] mb-1.5 sm:mb-2 font-body">
+                  Name (optional)
+                </label>
                 <Input
                   type="text"
-                  placeholder="Full Name[]"
+                  placeholder="Full Name"
                   value={field.name}
                   onChange={(e) => updateField(field.id, "name", e.target.value)}
-                  className="w-full"
+                  className="pl-3 sm:pl-4 py-2.5 sm:py-3 font-body h-10 sm:h-12 lg:h-[55%] text-sm sm:text-base"
                 />
               </div>
             </div>
@@ -91,14 +99,22 @@ export function InviteModal({ isOpen, onClose }: InviteModalProps) {
         </div>
 
         {/* Add Another Button */}
-        <button onClick={addAnotherField} className="flex items-center gap-2 text-green-600 hover:text-green-700 mb-8">
-          <Plus className="w-4 h-4" />
-          <span className="font-medium">Add another</span>
+        <button
+          onClick={addAnotherField}
+          className="flex items-center gap-2 text-green-600 hover:text-green-700 mb-5 sm:mb-6 lg:mb-8 p-1 hover:bg-green-50 rounded transition-colors"
+        >
+          <PlusCircle className="w-4 h-4 sm:w-5 sm:h-5" />
+          <span className="text-sm sm:text-base lg:text-[16px] font-medium font-body">Add another</span>
         </button>
 
         {/* Send Button */}
         <div className="flex justify-end">
-          <Button className="bg-green-500 hover:bg-green-600 text-white px-8 py-2 rounded-full" onClick={handleSend}>SEND INVITATION</Button>
+          <Button
+            className="bg-green-500 hover:bg-green-600 text-black px-4 sm:px-6 lg:px-8 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm lg:text-sm font-bold lg:font-[700] h-10 sm:h-12 lg:h-[50%] w-full sm:w-auto sm:min-w-[140px] lg:w-[30%]"
+            onClick={handleSend}
+          >
+            SEND INVITATION
+          </Button>
         </div>
       </div>
     </div>
