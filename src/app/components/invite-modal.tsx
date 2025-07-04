@@ -68,7 +68,7 @@ export function InviteModal({ isOpen, onClose }: InviteModalProps) {
 
         {/* Form Fields */}
         <div className="space-y-3 sm:space-y-4 mb-4 sm:mb-5 lg:mb-6">
-          {inviteFields.map((field, index) => (
+          {inviteFields.map((field) => (
             <div key={field.id} className="flex flex-col sm:grid sm:grid-cols-2 gap-3 sm:gap-4">
               <div>
                 <label className="block text-sm sm:text-base lg:text-[16px] text-left font-semibold sm:font-[600] text-[#5B5C5B] mb-1.5 sm:mb-2 font-body">
