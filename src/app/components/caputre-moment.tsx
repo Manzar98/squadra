@@ -8,6 +8,7 @@ import { Button } from "../components/ui/button"
 import { useRouter } from "next/navigation"
 import { CustomDropdown, DropdownItem } from "./drop-down"
 import { TextArea } from "../components/ui/textarea"
+import Swal from "sweetalert2"
 
 export default function CaptureAMoment() {
     const router = useRouter()
@@ -50,13 +51,123 @@ export default function CaptureAMoment() {
         "👌 Couldn't have done it better myself",
         "👏 That was so cool!",
         "😊 You were really thoughtful!",
+        
     ]
 
-    // const handleSubmit = () => {
-    //     // Store the form data and navigate to details page
-    //     localStorage.setItem("submittedMoment", JSON.stringify(formData))
-    //     router.push("/dashboard/moment-details")
-    // }
+    const handleSubmit = () => {
+        // Validate form data
+        // if (!formData.squadmate || !formData.flowZone || !formData.reaction) {
+        //   Swal.fire({
+        //     title: "Missing Information",
+        //     text: "Please fill in all required fields before submitting.",
+        //     icon: "warning",
+        //     confirmButtonText: "OK",
+        //     confirmButtonColor: "#3FD24D",
+        //   })
+        //   return
+        // }
+    
+        // Show success alert
+        Swal.fire({
+          html: `
+            <div style="text-align: center; padding: 20px 10px;" class="font-body">
+            <span class="text-[120px]">🎉</span>
+              <div class="text-[16px] font-[600] text-black font-body">
+                Woo hoo! You've just made ${formData.squadmate || "[username]"}'s day and helped them build a skill too!
+              </div>
+            </div>
+          `,
+          showConfirmButton: false,
+          showCancelButton: false,
+          width: "500px",
+          padding: "17px",
+          background: "#ffffff",
+          backdrop: "rgba(0,0,0,0.4)",
+          customClass: {
+            popup: "success-modal",
+            htmlContainer: "success-content",
+          },
+          didOpen: () => {
+            // Add custom buttons
+            const popup = Swal.getPopup()
+            if (popup) {
+              const buttonContainer = document.createElement("div")
+              buttonContainer.style.cssText = `
+                display: flex;
+                gap: 15px;
+                justify-content: center;
+                flex-wrap: wrap;
+              `
+    
+              const teamChannelBtn = document.createElement("button")
+              teamChannelBtn.innerHTML = "GO TO TEAM CHANNEL"
+              teamChannelBtn.className="font-heading"
+              teamChannelBtn.style.cssText = `
+                background: white;
+                border: 2px solid #3FD24D;
+                color: #3FD24D;
+                padding: 12px 24px;
+                border-radius: 25px;
+                font-weight: 700;
+                font-size: 14px;
+                cursor: pointer;
+                transition: all 0.2s;
+                min-width: 160px;
+              `
+              teamChannelBtn.onmouseover = () => {
+                teamChannelBtn.style.backgroundColor = "#e6f9e7"
+              }
+              teamChannelBtn.onmouseout = () => {
+                teamChannelBtn.style.backgroundColor = "#ffff"
+              }
+
+              teamChannelBtn.onclick = () => {
+                Swal.close()
+                router.push("/team-channel")
+              }
+    
+              const newMomentBtn = document.createElement("button")
+              newMomentBtn.innerHTML = "NEW MOMENT"
+              newMomentBtn.className="font-heading"
+              newMomentBtn.style.cssText = `
+                background: #3FD24D;
+                border: 2px solid #3FD24D;
+                color: #000;
+                border-radius: 25px;
+                font-weight: 700;
+                font-size: 14px;
+                cursor: pointer;
+                transition: all 0.2s;
+                min-width: 222px;
+              `
+              newMomentBtn.onmouseover = () => {
+                newMomentBtn.style.backgroundColor = "#00b914"
+              }
+              newMomentBtn.onmouseout = () => {
+                newMomentBtn.style.backgroundColor = "#3FD24D"
+              }
+              
+              newMomentBtn.onclick = () => {
+                Swal.close()
+                // Reset form for new moment
+                setFormData({
+                  squadmate: "",
+                  flowZone: "",
+                  reaction: "",
+                  note: "",
+                })
+              }
+    
+              buttonContainer.appendChild(teamChannelBtn)
+              buttonContainer.appendChild(newMomentBtn)
+              popup.appendChild(buttonContainer)
+            }
+          },
+        })
+    
+        // Store the form data
+        localStorage.setItem("submittedMoment", JSON.stringify(formData))
+      }
 
     const handleNoteChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         const value = e.target.value
@@ -84,6 +195,27 @@ export default function CaptureAMoment() {
     }
 
     return (
+        <>
+        <style jsx global>{`
+          .success-modal {
+            border-radius: 16px !important;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+          }
+          .success-content {
+            margin: 0 !important;
+          }
+          @media (max-width: 640px) {
+            .success-modal {
+              width: 90% !important;
+              margin: 0 auto !important;
+            }
+            .success-modal button {
+              min-width: 140px !important;
+              font-size: 12px !important;
+              padding: 10px 20px !important;
+            }
+          }
+        `}</style>
         <div className="mt-10 lg:mt-0 flex flex-1 flex-col item-center px-[1.5rem] pb-[3.9rem] justify-center">
             <div className="flex justify-between items-center align-middle mt-[1.25rem] mb-[1.1875rem]">
                 <h4 className="lg:text-[34px] font-[600] text-gray-900 tracking-[0.25px]">Capture a Moment of Flow</h4>
@@ -187,6 +319,7 @@ export default function CaptureAMoment() {
                     </div>
 
                     <Button
+                    onClick={handleSubmit}
                         className="w-[452px] max-w-md h-[56px] bg-green-500 hover:bg-green-600 font-[700] text-[16px] rounded-full tracking-[0.5px] mb-8"
                     >
                         SUBMIT MOMENT
@@ -195,6 +328,7 @@ export default function CaptureAMoment() {
                 </div>
             </div>
         </div>
+        </>
 
     )
 }
