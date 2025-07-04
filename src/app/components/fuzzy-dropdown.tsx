@@ -110,7 +110,7 @@ export function FuzzyDropdown({
           type="text"
           value={searchTerm}
           onChange={handleInputChange}
-          onFocus={() => setIsOpen(true)}
+          onClick={() => setIsOpen((prev) => !prev)}
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
           className="w-full px-4 py-3 pr-10 border border-gray-300 rounded-lg text-[16px] font-[600] text-black font-body placeholder-[#A3A4A3] focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
@@ -118,9 +118,8 @@ export function FuzzyDropdown({
         />
         {isShow && (
           <ChevronDown
-            className={`absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#A3A4A3] transition-transform ${
-              isOpen ? "rotate-180" : ""
-            }`}
+            className={`absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#A3A4A3] transition-transform ${isOpen ? "rotate-180" : ""
+              }`}
           />
         )}
       </div>
@@ -132,9 +131,8 @@ export function FuzzyDropdown({
               <div
                 key={option}
                 onClick={() => handleOptionClick(option)}
-                className={`px-4 py-3 cursor-pointer text-gray-900 hover:bg-gray-50 ${
-                  index === highlightedIndex ? "bg-green-100" : ""
-                } ${option === value ? "bg-green-100" : ""}`}
+                className={`px-4 py-3 cursor-pointer text-gray-900 hover:bg-gray-50 ${index === highlightedIndex ? "bg-green-100" : ""
+                  } ${option === value ? "bg-green-100" : ""}`}
               >
                 {option}
               </div>

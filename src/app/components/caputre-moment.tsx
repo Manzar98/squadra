@@ -186,7 +186,7 @@ export default function CaptureAMoment() {
                     </div>
 
                     <Button
-                        className="w-[452px] max-w-md h-[56px] bg-green-500 hover:bg-green-600 text-white font-[700] text-[16px] rounded-full tracking-[0.5px] mb-8"
+                        className="w-[452px] max-w-md h-[56px] bg-green-500 hover:bg-green-600 font-[700] text-[16px] rounded-full tracking-[0.5px] mb-8"
                     >
                         SUBMIT MOMENT
                     </Button>
