@@ -7,6 +7,7 @@ import { FuzzyDropdown } from "../components/fuzzy-dropdown"
 import { Button } from "../components/ui/button"
 import { useRouter } from "next/navigation"
 import { CustomDropdown, DropdownItem } from "./drop-down"
+import { TextArea } from "../components/ui/textarea"
 
 export default function CaptureAMoment() {
     const router = useRouter()
@@ -175,7 +176,7 @@ export default function CaptureAMoment() {
                     <div className="mb-[2.44rem]">
                         <label className="block text-[16px] text-left font-[600] text-[#5B5C5B] mb-2 font-body">Add a short personal note</label>
                         <div className="relative">
-                            <textarea
+                            <TextArea
                                 value={formData.note}
                                 onChange={handleNoteChange}
                                 placeholder="A personal note makes your encouragement more meaningful and adding specific context helps them reflect on what they did so they can build on it."
