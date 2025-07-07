@@ -20,6 +20,7 @@ interface InviteModalProps {
 
 export function InviteModal({ isOpen, onClose }: InviteModalProps) {
   const [inviteFields, setInviteFields] = useState<InviteField[]>([{ id: "1", email: "", name: "" }])
+  const [emailErrors, setEmailErrors] = useState<Record<string, boolean>>({})
   const dispatch = useDispatch()
 
   const addAnotherField = () => {
@@ -36,6 +37,26 @@ export function InviteModal({ isOpen, onClose }: InviteModalProps) {
   }
 
   const handleSend = () => {
+    // Basic validation: check for empty email only (no regex)
+    let hasError = false
+    const newEmailErrors: Record<string, boolean> = {}
+
+    inviteFields.forEach((field) => {
+      if (!field.email) {
+        newEmailErrors[field.id] = true
+        hasError = true
+      } else {
+        newEmailErrors[field.id] = false
+      }
+    })
+
+    setEmailErrors(newEmailErrors)
+
+    if (hasError) {
+      // Optionally, you could show a toast or alert here
+      return
+    }
+
     inviteFields.forEach((field) => {
       if (field.email) {
         const newMember: TeamMember = {
@@ -70,7 +91,7 @@ export function InviteModal({ isOpen, onClose }: InviteModalProps) {
         <div className="space-y-3 sm:space-y-4 mb-4 sm:mb-5 lg:mb-6">
           {inviteFields.map((field) => (
             <div key={field.id} className="flex flex-col sm:grid sm:grid-cols-2 gap-3 sm:gap-4">
-              <div>
+              <div className="flex flex-col">
                 <label className="block text-sm sm:text-base lg:text-[16px] text-left font-semibold sm:font-[600] text-[#5B5C5B] mb-1.5 sm:mb-2 font-body">
                   Email address
                 </label>
@@ -78,11 +99,28 @@ export function InviteModal({ isOpen, onClose }: InviteModalProps) {
                   type="email"
                   placeholder="user1@email.com"
                   value={field.email}
-                  onChange={(e) => updateField(field.id, "email", e.target.value)}
+                  onChange={(e) => {
+                    updateField(field.id, "email", e.target.value)
+                    if (emailErrors && emailErrors[field.id]) {
+                      setEmailErrors((prev: any) => ({ ...prev, [field.id]: false }))
+                    }
+                  }}
                   className="pl-3 sm:pl-4 py-2.5 sm:py-3 font-body h-10 sm:h-12 lg:h-[55%] text-sm sm:text-base"
                 />
+                {/* Always render error container to maintain consistent height */}
+                <div className="h-5 pt-1">
+                  <p 
+                    className={`text-[12px] leading-[1.33] tracking-[0.4px] font-heading text-left transition-opacity duration-200 ${
+                      emailErrors && emailErrors[field.id] 
+                        ? "text-red-500 opacity-100" 
+                        : "text-transparent opacity-0"
+                    }`}
+                  >
+                    Email is required
+                  </p>
+                </div>
               </div>
-              <div>
+              <div className="flex flex-col">
                 <label className="block text-sm sm:text-base lg:text-[16px] text-left font-semibold sm:font-[600] text-[#5B5C5B] mb-1.5 sm:mb-2 font-body">
                   Name (optional)
                 </label>
@@ -93,6 +131,12 @@ export function InviteModal({ isOpen, onClose }: InviteModalProps) {
                   onChange={(e) => updateField(field.id, "name", e.target.value)}
                   className="pl-3 sm:pl-4 py-2.5 sm:py-3 font-body h-10 sm:h-12 lg:h-[55%] text-sm sm:text-base"
                 />
+                {/* Empty error container to maintain grid alignment */}
+                <div className="h-5 pt-1">
+                  <p className="text-transparent opacity-0 text-[12px] leading-[1.33]">
+                    Placeholder
+                  </p>
+                </div>
               </div>
             </div>
           ))}

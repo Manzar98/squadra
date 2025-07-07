@@ -144,8 +144,10 @@ export function ContentSlider() {
     <div className="flex flex-1 items-center p-4 sm:p-6 lg:p-[1.5rem] justify-center">
     <div className="bg-white w-full h-full flex flex-col rounded-[6px] border border-gray-200">
       {/* Full screen height split into content and footer */}
-      <div className="flex flex-col justify-between min-h-[400px] sm:min-h-[500px] lg:min-h-auto">
-        <div>{renderSlide()}</div>
+      <div className="flex flex-col justify-between lg:min-h-auto">
+        <div className="content-div min-h-[600px] sm:min-h-[600px] lg:min-h-[642px] max-h-[600px] sm:max-h-[600px] lg:max-h-[642px] overflow-y-auto px-2 lg:px-0">
+          {renderSlide()}
+        </div>
 
         {/* Fixed bottom controls */}
         <div className="flex flex-col items-center justify-center pb-4 sm:pb-6 lg:pb-[2rem]">
