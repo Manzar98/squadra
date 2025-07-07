@@ -102,7 +102,7 @@ export function InviteModal({ isOpen, onClose }: InviteModalProps) {
                   onChange={(e) => {
                     updateField(field.id, "email", e.target.value)
                     if (emailErrors && emailErrors[field.id]) {
-                      setEmailErrors((prev: any) => ({ ...prev, [field.id]: false }))
+                      setEmailErrors((prev) => ({ ...prev, [field.id]: false }))
                     }
                   }}
                   className="pl-3 sm:pl-4 py-2.5 sm:py-3 font-body h-10 sm:h-12 lg:h-[55%] text-sm sm:text-base"
