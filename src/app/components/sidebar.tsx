@@ -78,10 +78,13 @@ export function Sidebar() {
             <Medal className="w-5 h-5 lg:w-6 lg:h-6 text-black" />
           </div>
 
-          <div className="flex items-center justify-between text-sm lg:text-lg font-medium tracking-wide hover:text-green-500">
+          <a
+            href="/dashboard/channels"
+            className="flex items-center justify-between text-sm lg:text-lg font-medium tracking-wide hover:text-green-500 transition-colors"
+          >
             <span>Squad channel</span>
             <MessagesSquare className="w-5 h-5 lg:w-6 lg:h-6 text-black" />
-          </div>
+          </a>
 
           {/* Invite Squadmates Section */}
           <div className="w-full rounded-xl border border-gray-200 shadow-sm overflow-hidden mt-10 lg:mt-16.5">
