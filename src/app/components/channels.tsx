@@ -2,13 +2,13 @@
 
 import { Button } from "../components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/avatar"
-import { Card, CardContent, CardHeader } from "../components/ui/cards"
 import { Badge } from "../components/ui/badge"
 import { Input } from "../components/ui/input"
 import { CustomDropdown, DropdownItem } from "./drop-down"
-import { Heart, MessageCircle, Slack, Trophy, Target, Users, Zap, Eye, Info, Mountain, MessageSquareCode, Cone, IceCream, MessageSquare } from "lucide-react"
+import { Heart, Slack, Users, Eye, Info, Mountain, MessageSquareCode, IceCream, MessageSquare } from "lucide-react"
 import { useRouter } from "next/navigation"
 import React, { useState } from "react";
+import Image from "next/image"
 
 // Simple Tooltip component
 function Tooltip({ children, text }: { children: React.ReactNode; text: string }) {
@@ -89,11 +89,11 @@ export default function Channels() {
 
   return (
     <div className="flex flex-1 flex-col bg-[#F5F6F5]">
-      <div className="px-6 pt-4.5">
-        <div className="flex items-center justify-between mb-10.5 fixed-header">
-          <div className="flex items-center gap-4">
-            <h4 className="text-[34px] font-semibold text-gray-900">Looney Tunes' channel</h4>
-            <Button className="bg-gray-50 hover:bg-gray-100 border-1 border-[#C7CACD] text-black px-4 py-2 rounded-lg flex items-center gap-2 text-sm font-medium">
+      <div className="px-2 sm:px-4 lg:px-6 pt-2 sm:pt-4.5">
+        <div className="mt-14 lg:mt-0 flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-8 lg:mb-10.5 fixed-header">
+          <div className="flex items-center gap-2 sm:gap-4">
+            <h4 className="text-lg sm:text-2xl lg:text-[34px] font-semibold text-gray-900">Looney Tunes&#39; channel</h4>
+            <Button className="hidden xs:flex bg-gray-50 hover:bg-gray-100 border-1 border-[#C7CACD] text-black px-2 sm:px-4 py-1 sm:py-2  sm:text-sm rounded-lg items-center gap-2 text-sm font-medium">
               <Slack className="w-4 h-4" />
               Add to<span className="font-[900]">Slack</span>
             </Button>
@@ -102,11 +102,14 @@ export default function Channels() {
             align="right"
             trigger={
               <div className="w-12 h-12 rounded-full overflow-hidden cursor-pointer hover:ring-2 hover:ring-gray-200 transition-all">
-                <img
-                  src="../thumb8.jpg"
-                  alt="Melissa Duck profile picture"
-                  className="w-full h-full object-cover"
-                />
+                <Avatar className="w-full h-full">
+                  <AvatarImage
+                    src="/thumb8.jpg"
+                    alt="Melissa Duck profile picture"
+                    className="w-full h-full object-cover"
+                  />
+                  <AvatarFallback className="bg-yellow-400 text-white font-semibold">MD</AvatarFallback>
+                </Avatar>
               </div>
             }
           >
@@ -146,10 +149,10 @@ export default function Channels() {
           </CustomDropdown>
         </div>
 
-        <div className="flex">
-          <div className="pb-6 space-y-6 main-content">
+        <div className="flex w-full">
+          <div className="flex-1 w-full pb-2 sm:pb-4 lg:pb-6 space-y-3 sm:space-y-4 lg:space-y-6 main-content">
             {/* First Post */}
-            <div className="bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
+            <div className="w-full bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
               <div className="flex items-start justify-between gap-4 mb-4">
                 <div className="flex gap-4">
                   <Tooltip text="Bugs Bunny">
@@ -208,7 +211,7 @@ export default function Channels() {
               </div>
             </div>
             {/* Second Post */}
-            <div className="bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
+            <div className="w-full bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
               <div className="flex items-start justify-between gap-4 mb-4">
                 <div className="flex gap-4">
                   <Tooltip text="Shaw Shank">
@@ -243,7 +246,7 @@ export default function Channels() {
               <div className="mb-6">
                 <div className="flex items-center gap-1 mb-4">
                   <span className="text-lg">💯</span>
-                  <span className="text-xl font-bold text-[#5B5C5B] tracking-[0.12px] font-body">Couldn't have done it better myself</span>
+                  <span className="text-xl font-bold text-[#5B5C5B] tracking-[0.12px] font-body">Couldn&apos;t have done it better myself</span>
                 </div>
                 <p className="text-[#494949] leading-relaxed text-lg font-body font-[500] tracking-[0.5px]">
                   Tiramisu pastry chocolate. Danish muffin macaroon. Fruitcake marzipan pastry cheesecake jelly-o carrot
@@ -310,104 +313,101 @@ export default function Channels() {
               </div>
             </div>
             {/* Third Post */}
-            <div className="bg-white rounded-lg border border-gray-200 p-6 flex items-center justify-between shadow-sm mt-6">
-              {/* Left Section */}
-              <div className="flex items-center gap-6">
-                {/* Avatar */}
-                <Avatar className="w-24 h-24">
+            <div className="bg-white rounded-lg border border-gray-200 p-2 sm:p-4 lg:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between shadow-sm mt-3 sm:mt-4 lg:mt-6">
+              <div className="flex items-center gap-2 sm:gap-4 lg:gap-6">
+                <Avatar className="w-14 h-14 sm:w-20 sm:h-20 lg:w-24 lg:h-24">
                   <AvatarImage src="/thumb1.jpg" />
                   <AvatarFallback className="bg-yellow-400 text-white font-semibold text-3xl">BB</AvatarFallback>
                 </Avatar>
-                {/* Text Content */}
                 <div>
-                  <div className="text-[#494949] text-base mb-1">12 days ago</div>
-                  <div className="text-lg font-bold text-black mb-4">
+                  <div className="text-xs sm:text-base text-[#494949] mb-0.5">12 days ago</div>
+                  <div className="text-base sm:text-lg lg:text-2xl font-bold text-black mb-2 sm:mb-4">
                     Bugs Bunny <span className="font-normal">just unlocked</span>
                   </div>
-                  <div className="inline-flex items-center bg-[#F5F6F5] rounded-full px-5 py-3 gap-3">
-                    {/* Example icon, replace with your own if needed */}
-                    <Mountain className="w-7 h-7 text-[#A3A4A3]" />
-                    <span className="text-lg font-semibold text-[#494949]">Growth Mindset</span>
+                  <div className="inline-flex items-center bg-[#F5F6F5] rounded-full px-3 sm:px-5 py-2 sm:py-3 gap-2 sm:gap-3">
+                    <Mountain className="w-5 h-5 sm:w-7 sm:h-7 text-[#A3A4A3]" />
+                    <span className="text-sm sm:text-lg font-semibold text-[#494949]">Growth Mindset</span>
                   </div>
                 </div>
               </div>
-              {/* Right Illustration */}
-              {/* <div className="hidden md:block">
-                <img
+              {/* Illustration */}
+              <div className="hidden xs:block">
+                <Image
                   src="/sideimage.png"
                   alt="Growth Mindset Illustration"
-                  className="w-[260px] h-auto"
-                  style={{ minWidth: 200 }}
+                  width={260}
+                  height={180}
+                  className="w-[100px] sm:w-[180px] lg:w-[260px] h-auto"
+                  style={{ minWidth: 60 }}
+                  priority
                 />
-              </div> */}
+              </div>
             </div>
 
-            <div className="bg-white rounded-lg border border-gray-200 p-6 flex items-center justify-between shadow-sm mt-6">
-              {/* Left Section */}
-              <div className="flex items-center gap-6">
-                {/* Avatar */}
-                <Avatar className="w-24 h-24">
+            <div className="bg-white rounded-lg border border-gray-200 p-2 sm:p-4 lg:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between shadow-sm mt-3 sm:mt-4 lg:mt-6">
+              <div className="flex items-center gap-2 sm:gap-4 lg:gap-6">
+                <Avatar className="w-14 h-14 sm:w-20 sm:h-20 lg:w-24 lg:h-24">
                   <AvatarImage src="/thumb1.jpg" />
                   <AvatarFallback className="bg-yellow-400 text-white font-semibold text-3xl">BB</AvatarFallback>
                 </Avatar>
-                {/* Text Content */}
                 <div>
-                  <div className="text-[#494949] text-base mb-1">12 days ago</div>
-                  <div className="text-lg font-bold text-black mb-4">
+                  <div className="text-xs sm:text-base text-[#494949] mb-0.5">12 days ago</div>
+                  <div className="text-base sm:text-lg lg:text-2xl font-bold text-black mb-2 sm:mb-4">
                     Bugs Bunny <span className="font-normal">just unlocked</span>
                   </div>
-                  <div className="inline-flex items-center bg-[#F5F6F5] rounded-full px-5 py-3 gap-3">
-                    {/* Example icon, replace with your own if needed */}
-                    <Mountain className="w-7 h-7 text-[#A3A4A3]" />
-                    <span className="text-lg font-semibold text-[#494949]">Growth Mindset</span>
+                  <div className="inline-flex items-center bg-[#F5F6F5] rounded-full px-3 sm:px-5 py-2 sm:py-3 gap-2 sm:gap-3">
+                    <Mountain className="w-5 h-5 sm:w-7 sm:h-7 text-[#A3A4A3]" />
+                    <span className="text-sm sm:text-lg font-semibold text-[#494949]">Growth Mindset</span>
                   </div>
                 </div>
               </div>
-              {/* Right Illustration */}
-              {/* <div className="hidden md:block">
-                <img
+              {/* Illustration */}
+              <div className="hidden xs:block">
+                <Image
                   src="/sideimage.png"
                   alt="Growth Mindset Illustration"
-                  className="w-[260px] h-auto"
-                  style={{ minWidth: 200 }}
+                  width={260}
+                  height={180}
+                  className="w-[100px] sm:w-[180px] lg:w-[260px] h-auto"
+                  style={{ minWidth: 60 }}
+                  priority
                 />
-              </div> */}
+              </div>
             </div>
 
-            <div className="bg-white rounded-lg border border-gray-200 p-6 flex items-center justify-between shadow-sm mt-6">
-              {/* Left Section */}
-              <div className="flex items-center gap-6">
-                {/* Avatar */}
-                <Avatar className="w-24 h-24">
+            <div className="bg-white rounded-lg border border-gray-200 p-2 sm:p-4 lg:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between shadow-sm mt-3 sm:mt-4 lg:mt-6">
+              <div className="flex items-center gap-2 sm:gap-4 lg:gap-6">
+                <Avatar className="w-14 h-14 sm:w-20 sm:h-20 lg:w-24 lg:h-24">
                   <AvatarImage src="/thumb1.jpg" />
                   <AvatarFallback className="bg-yellow-400 text-white font-semibold text-3xl">BB</AvatarFallback>
                 </Avatar>
-                {/* Text Content */}
                 <div>
-                  <div className="text-[#494949] text-base mb-1">12 days ago</div>
-                  <div className="text-lg font-bold text-black mb-4">
+                  <div className="text-xs sm:text-base text-[#494949] mb-0.5">12 days ago</div>
+                  <div className="text-base sm:text-lg lg:text-2xl font-bold text-black mb-2 sm:mb-4">
                     Bugs Bunny <span className="font-normal">just unlocked</span>
                   </div>
-                  <div className="inline-flex items-center bg-[#F5F6F5] rounded-full px-5 py-3 gap-3">
-                    {/* Example icon, replace with your own if needed */}
-                    <Mountain className="w-7 h-7 text-[#A3A4A3]" />
-                    <span className="text-lg font-semibold text-[#494949]">Growth Mindset</span>
+                  <div className="inline-flex items-center bg-[#F5F6F5] rounded-full px-3 sm:px-5 py-2 sm:py-3 gap-2 sm:gap-3">
+                    <Mountain className="w-5 h-5 sm:w-7 sm:h-7 text-[#A3A4A3]" />
+                    <span className="text-sm sm:text-lg font-semibold text-[#494949]">Growth Mindset</span>
                   </div>
                 </div>
               </div>
-              {/* Right Illustration */}
-              {/* <div className="hidden md:block">
-                <img
+              {/* Illustration */}
+              <div className="hidden xs:block">
+                <Image
                   src="/sideimage.png"
                   alt="Growth Mindset Illustration"
-                  className="w-[260px] h-auto"
-                  style={{ minWidth: 200 }}
+                  width={260}
+                  height={180}
+                  className="w-[100px] sm:w-[180px] lg:w-[260px] h-auto"
+                  style={{ minWidth: 60 }}
+                  priority
                 />
-              </div> */}
+              </div>
             </div>
           </div>
           {/* <div className="gird grid-cols-1"> */}
-          <div className="w-[560px] px-6 pb-10 bg-[#F5F6F5] shrink-0">
+          <div className="hidden lg:w-[560px] lg:px-6 lg:pb-10 lg:bg-[#F5F6F5] lg:shrink-0 lg:block">
             {/* <div className="grid grid-cols-2 gap-8"> */}
             {/* Left Side: Signature Zones */}
             <div className="space-y-6">
@@ -499,7 +499,7 @@ export default function Channels() {
               <div className="mt-7">
                 <div className="flex items-center mb-1">
                   <h5 className="text-[24px] font-semibold text-gray-900 mr-2">
-                    This Week's Skills Quest
+                    This Week&apos;s Skills Quest
                   </h5>
                   <Tooltip text="Signature Zones are areas of excellence where team members shine most.">
                     <Info className="w-5 h-5 text-black" />
@@ -507,10 +507,10 @@ export default function Channels() {
                 </div>
 
                 <p className="text-[18px] text-[#090A09] leading-tight mb-4 font-body tracking-[0.5]">
-                  Build your Squad's Mastery Zones by looking out for these actions. Did a Squadmate...
+                  Build your Squad&apos;s Mastery Zones by looking out for these actions. Did a Squadmate...
                 </p>
                 <p className="text-[18px] text-[#090A09] leading-tight mb-4 font-body tracking-[0.5]">
-                  Get you or others to an "aha" moment
+                  Get you or others to an &quot;aha&quot; moment
                 </p>
 
                 {/* Avatar Grid */}

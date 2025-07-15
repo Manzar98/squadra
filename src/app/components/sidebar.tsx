@@ -73,10 +73,13 @@ export function Sidebar() {
 
         {/* Navigation Links */}
         <div className="px-4 flex-1 space-y-6 lg:space-y-10">
-          <div className="flex items-center justify-between text-sm lg:text-lg font-medium tracking-wide hover:text-green-500">
+          <a
+            href="/dashboard/mastery-zones"
+            className="flex items-center justify-between text-sm lg:text-lg font-medium tracking-wide hover:text-green-500 transition-colors"
+          >
             <span>Your flow zones</span>
             <Medal className="w-5 h-5 lg:w-6 lg:h-6 text-black" />
-          </div>
+          </a>
 
           <a
             href="/dashboard/channels"
