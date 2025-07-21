@@ -1,0 +1,75 @@
+'use client'
+
+import { useState } from 'react'
+import { createClient } from '@supabase/supabase-js'
+import { Input } from './ui/input'
+import Swal from 'sweetalert2'
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+)
+
+export default function UploadPage() {
+  const [file, setFile] = useState<File | null>(null)
+
+  const handleUpload = async (selectedFile: File) => {
+    if (!selectedFile) return
+
+    const { data: sessionData } = await supabase.auth.getSession()
+    const token = sessionData?.session?.access_token
+
+    if (!token) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Not logged in',
+        text: 'Please log in to upload files.',
+      })
+      return
+    }
+
+    const formData = new FormData()
+    formData.append('file', selectedFile)
+
+    const res = await fetch('/api/uploads', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    })
+
+    const json = await res.json()
+    if (res.ok) {
+      Swal.fire({
+        icon: 'success',
+        title: 'Upload Successful',
+        text: `Uploaded to: ${json.url}`,
+      })
+    } else {
+      Swal.fire({
+        icon: 'error',
+        title: 'Upload Failed',
+        text: json.error || 'Unknown error',
+      })
+    }
+  }
+
+  return (
+    <div className="max-w-md mb-6">
+        <label className="block mb-2 text-sm font-medium text-gray-700">
+            Upload File
+        </label>
+      <Input
+        type="file"
+        onChange={(e) => {
+          const selectedFile = e.target.files?.[0] || null
+          setFile(selectedFile)
+          if (selectedFile) handleUpload(selectedFile)
+        }}
+        className="pl-4 py-3 font-body"
+      />
+      {/* Removed Upload button */}
+    </div>
+  )
+}

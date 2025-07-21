@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation"
 import { CustomDropdown, DropdownItem } from "./drop-down"
 import { TextArea } from "../components/ui/textarea"
 import Swal from "sweetalert2"
+import FileUpload from "./file-upload"
 
 export default function CaptureAMoment() {
     const router = useRouter()
@@ -317,6 +318,7 @@ export default function CaptureAMoment() {
                             <div className="text-[12px] text-gray-400">{formData.note.length}/400</div>
                         </div>
                     </div>
+                    <FileUpload />
 
                     <Button
                     onClick={handleSubmit}

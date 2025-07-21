@@ -8,6 +8,8 @@ import { InviteModal } from "./invite-modal"
 import { selectTeamMembers, type TeamMember } from "../../store"
 import { TextArea } from "./ui/textarea"
 import Image from "next/image"
+import { selectSkills } from '../../store'
+
 
 
 export function WelcomeSlider() {
@@ -23,29 +25,29 @@ export function WelcomeSlider() {
     "You did great on the last training session. The content was so useful! You did great on the last training session",
   )
   const [selectedEmoji, setSelectedEmoji] = useState("😎")
-
-  const skills = [
-    "Collaboration",
-    "Openness",
-    "Innovation",
-    "Adaptable",
-    "Growth mindset",
-    "Resilience",
-    "Empathy",
-    "Optimism",
-    "Insightfulness",
-    "Methodical",
-    "Purpose driven",
-    "Giver",
-    "Organised",
-    "Curiosity",
-    "Humility",
-    "Risk management",
-    "Communication",
-    "Resolving conflict",
-    "Conscientious",
-    "Enthusiastic",
-  ]
+  const skills = useSelector(selectSkills)
+  // const skills = [
+  //   "Collaboration",
+  //   "Openness",
+  //   "Innovation",
+  //   "Adaptable",
+  //   "Growth mindset",
+  //   "Resilience",
+  //   "Empathy",
+  //   "Optimism",
+  //   "Insightfulness",
+  //   "Methodical",
+  //   "Purpose driven",
+  //   "Giver",
+  //   "Organised",
+  //   "Curiosity",
+  //   "Humility",
+  //   "Risk management",
+  //   "Communication",
+  //   "Resolving conflict",
+  //   "Conscientious",
+  //   "Enthusiastic",
+  // ]
 
   const emojis = [
     { symbol: "👍", text: "Great job!", tooltip: "Thumbs up" },
@@ -181,9 +183,9 @@ export function WelcomeSlider() {
 
       <div className="content-div min-h-[440px] sm:min-h-[390px] lg:min-h-[390px] max-h-[440px] sm:max-h-[350px] lg:max-h-[390px] overflow-y-auto mb-4 sm:mb-6">
         <div className="flex flex-wrap justify-center gap-2 sm:gap-3 max-w-5xl mx-auto text-center px-2">
-          {skills.map((skill) => (
+          {skills.map((skill,id) => (
             <button
-              key={skill}
+              key={id}
               onClick={() => {
                 if (selectedSkills.includes(skill)) {
                   setSelectedSkills(selectedSkills.filter((s) => s !== skill))

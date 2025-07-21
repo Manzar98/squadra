@@ -11,8 +11,10 @@
   "dependencies": {
     "@radix-ui/react-avatar": "^1.1.10",
     "@reduxjs/toolkit": "^2.8.2",
+    "@supabase/supabase-js": "^2.51.0",
     "@tailwindcss/postcss": "^2.0.0",
     "autoprefixer": "^10.4.21",
+    "axios": "^1.10.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.525.0",
@@ -20,8 +22,10 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-redux": "^9.2.0",
+    "sib-api-v3-sdk": "^8.5.0",
     "sweetalert2": "^11.22.2",
-    "tailwind-merge": "^3.3.1"
+    "tailwind-merge": "^3.3.1",
+    "uuid": "^11.1.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

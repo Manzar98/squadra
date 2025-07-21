@@ -34,11 +34,24 @@ const teamSlice = createSlice({
 
 export const { addMember, setMembers, updateMember, removeMember } = teamSlice.actions
 
+// ✅ Skills slice
+const skillsSlice = createSlice({
+  name: 'skills',
+  initialState: [] as string[],
+  reducers: {
+    setSkills: (_state, action: PayloadAction<string[]>) => action.payload,
+  },
+})
+
+export const { setSkills } = skillsSlice.actions
+
 export const selectTeamMembers = (state: RootState) => state.team
+export const selectSkills = (state: RootState) => state.skills
 
 export const store = configureStore({
   reducer: {
     team: teamSlice.reducer,
+    skills: skillsSlice.reducer,
   },
 })
 

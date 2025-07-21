@@ -6,26 +6,56 @@ import { Button } from "../../components/ui/button"
 import { Input } from "../../components/ui/input"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
-
+import { createSupabaseServerClient } from '../../../lib/supabase/client'
+const supabase = createSupabaseServerClient();
 export default function LoginPage() {
+  
   const [showPassword, setShowPassword] = useState(false)
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const router = useRouter()
   const [emailError, setEmailError] = useState(false)
   const [passwordError, setPasswordError] = useState(false)
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = () => {
+
+
+  const handleLogin = async (e: { preventDefault: () => void }) => {
     const isEmailEmpty = email.trim() === ""
     const isPasswordEmpty = password.trim() === ""
 
     setEmailError(isEmailEmpty)
     setPasswordError(isPasswordEmpty)
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+    
+    debugger
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
 
-    if (!isEmailEmpty && !isPasswordEmpty) {
-      router.push("/dashboard")
+    setLoading(false);
+
+    if (error) {
+      setError(error.message);
+    } else {
+      // data.user contains the user info
+      window.location.href = '/dashboard';
     }
-  }
+  };
+
+  
+
+  const redirectToGoogleAuth = () => {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    // const redirectUrl = `${window.location.origin}/auth/callback`; // This is your callback route
+    const googleAuthUrl = `${supabaseUrl}/auth/v1/authorize?provider=google&redirect_to=http://localhost:3000/dashboard`;
+    // Redirect user to Google OAuth
+    window.location.href = googleAuthUrl;
+  };
 
   return (
     <div className="min-h-screen flex">
@@ -123,14 +153,38 @@ export default function LoginPage() {
                 >
                   SIGN IN
                 </Button>
+                
               </div>
+              {error && <p>{error}</p>}
             </form>
-
+            <div className="w-full flex justify-center mt-4">
+              <button
+                type="button"
+                onClick={redirectToGoogleAuth}
+                className="flex items-center justify-center gap-2 w-full lg:w-[83%] bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-full py-3 px-4 text-[15px] font-semibold font-heading text-gray-900 dark:text-white shadow-sm hover:bg-gray-50 dark:hover:bg-gray-800 transition-all"
+              >
+                <span className="flex items-center">
+                  {/* Google Icon from Lucide */}
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                    <g>
+                      <path d="M21.805 10.023h-9.765v3.977h5.617c-.242 1.242-1.484 3.648-5.617 3.648-3.375 0-6.125-2.789-6.125-6.148 0-3.359 2.75-6.148 6.125-6.148 1.922 0 3.211.82 3.953 1.523l2.703-2.633c-1.719-1.594-3.938-2.57-6.656-2.57-5.523 0-10 4.477-10 10s4.477 10 10 10c5.75 0 9.547-4.031 9.547-9.719 0-.656-.07-1.156-.156-1.629z" fill="#4285F4"/>
+                      <path d="M3.153 7.345l3.281 2.406c.891-1.781 2.578-3.008 4.606-3.008 1.125 0 2.156.391 2.953 1.031l2.703-2.633c-1.719-1.594-3.938-2.57-6.656-2.57-3.625 0-6.703 2.07-8.219 5.074z" fill="#34A853"/>
+                      <path d="M12.04 22c2.672 0 4.922-.883 6.563-2.406l-3.047-2.492c-.844.57-1.922.914-3.516.914-2.859 0-5.289-1.93-6.156-4.523l-3.242 2.5c1.5 3.008 4.672 5.007 8.398 5.007z" fill="#FBBC05"/>
+                      <path d="M21.805 10.023h-9.765v3.977h5.617c-.242 1.242-1.484 3.648-5.617 3.648-3.375 0-6.125-2.789-6.125-6.148 0-.547.07-1.078.172-1.578l-3.281-2.406c-.531 1.07-.844 2.273-.844 3.584 0 5.523 4.477 10 10 10 5.75 0 9.547-4.031 9.547-9.719 0-.656-.07-1.156-.156-1.629z" fill="#EA4335"/>
+                    </g>
+                  </svg>
+                </span>
+                <span className="flex-1 text-center">Sign in with Google</span>
+              </button>
+            </div>
             {/* Sign Up Link */}
             <div className="mt-10 text-center lg:text-left lg:mt-24.5">
               <p className="text-sm lg:text-[16px] font-[600] tracking-[0.15px] font-body text-black">
                 Don’t have an account yet?{" "}
-                <button className="text-[#00A600] font-[600] hover:underline transition-all">
+                <button
+                  className="text-[#00A600] font-[600] hover:underline transition-all"
+                  onClick={() => { window.location.href = "/signup"; }}
+                >
                   Sign up
                 </button>
               </p>

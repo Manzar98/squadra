@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Montserrat, Raleway } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
+import { StartupInitializer } from "./startup-initializer";
 
 const montserrat = Montserrat({
   subsets: ["latin"],
@@ -34,7 +35,10 @@ export default function RootLayout({
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </head>
       <body className={`${montserrat.variable} ${raleway.variable} antialiased`}>
-        <Providers>{children}</Providers>
+        <Providers>
+        <StartupInitializer />
+          {children}
+          </Providers>
       </body>
     </html>
   );
