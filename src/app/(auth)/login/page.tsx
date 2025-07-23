@@ -22,30 +22,37 @@ export default function LoginPage() {
 
 
   const handleLogin = async (e: { preventDefault: () => void }) => {
-    const isEmailEmpty = email.trim() === ""
-    const isPasswordEmpty = password.trim() === ""
-
-    setEmailError(isEmailEmpty)
-    setPasswordError(isPasswordEmpty)
     e.preventDefault();
+    const isEmailEmpty = email.trim() === "";
+    const isPasswordEmpty = password.trim() === "";
+  
+    setEmailError(isEmailEmpty);
+    setPasswordError(isPasswordEmpty);
+  
+    if (isEmailEmpty || isPasswordEmpty) return;
+  
     setLoading(true);
     setError(null);
-    
-    debugger
+  
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
-
+  
     setLoading(false);
-
+  
     if (error) {
       setError(error.message);
     } else {
-      // data.user contains the user info
-      window.location.href = '/dashboard';
+      const token = data.session?.access_token;
+      if (token) {
+        sessionStorage.setItem("supabaseToken", token);
+      }
+  
+      window.location.href = "/dashboard";
     }
   };
+  
 
   
 

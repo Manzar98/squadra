@@ -1,14 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { createClient } from '@supabase/supabase-js'
 import { Input } from './ui/input'
 import Swal from 'sweetalert2'
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
 
 export default function UploadPage() {
   const [file, setFile] = useState<File | null>(null)
@@ -16,8 +11,7 @@ export default function UploadPage() {
   const handleUpload = async (selectedFile: File) => {
     if (!selectedFile) return
 
-    const { data: sessionData } = await supabase.auth.getSession()
-    const token = sessionData?.session?.access_token
+    const token = sessionStorage.getItem('supabaseToken')
 
     if (!token) {
       Swal.fire({

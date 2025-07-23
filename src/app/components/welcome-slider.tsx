@@ -1,31 +1,73 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useSelector } from "react-redux"
 import { Button } from "../components/ui/button"
 import { Check, MessageSquareTextIcon } from "lucide-react"
 import { InviteModal } from "./invite-modal"
-import { selectTeamMembers, type TeamMember } from "../../store"
 import { TextArea } from "./ui/textarea"
 import Image from "next/image"
 import { selectSkills } from '../../store'
+import { supabase } from "../../lib/supabase/client"
 
-
+export interface TeamMember {
+  id: string
+  name: string
+  email: string
+  selected?: boolean
+}
+export interface SeletedSkills {
+  id: string
+  name: string
+}
 
 export function WelcomeSlider() {
   const [currentSlide, setCurrentSlide] = useState(0)
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false)
   const [showSuccessScreen, setShowSuccessScreen] = useState(false)
-  const teamMembers = useSelector(selectTeamMembers)
-  const [selectedMember, setSelectedMember] = useState<TeamMember | null>(
-    teamMembers.find((member: TeamMember) => member.selected) || null,
-  )
-  const [selectedSkills, setSelectedSkills] = useState<string[]>([])
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([])
+  const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null)
+  const [selectedSkills, setSelectedSkills] = useState<SeletedSkills[]>([])
+  const [authenticatedUser, setAuthenticatedUser] = useState({
+    id: "",
+    referral_code: null as string | null,
+  })
   const [noteText, setNoteText] = useState(
     "You did great on the last training session. The content was so useful! You did great on the last training session",
   )
   const [selectedEmoji, setSelectedEmoji] = useState("😎")
   const skills = useSelector(selectSkills)
+  
+  const handleInvitesSent = (newMembers: TeamMember[]) => {
+    setTeamMembers(prevMembers => [...prevMembers, ...newMembers]);
+  };
+
+  useEffect(() => {
+    const fetchTeamMembers = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        const { data: userInfo } = await supabase
+          .from('users-info')
+          .select('referral_code')
+          .eq('user_id', user.id)
+          .single()
+          setAuthenticatedUser({id: user.id, referral_code: userInfo?.referral_code})
+        
+        if (userInfo) {
+          const { data: members } = await supabase
+            .from('users-info')
+            .select('id:user_id, name, email, id')
+            .eq('referred_by', userInfo.referral_code)
+          
+          if (members) {
+            setTeamMembers(members as TeamMember[])
+          }
+        }
+      }
+    }
+
+    fetchTeamMembers()
+  }, [])
   // const skills = [
   //   "Collaboration",
   //   "Openness",
@@ -64,18 +106,35 @@ export function WelcomeSlider() {
 
   const selectMember = (member: TeamMember) => {
     setSelectedMember(member)
+
   }
 
   const nextSlide = () => setCurrentSlide((prev) => (prev + 1) % 3)
 
   const handleSubmit = () => {
-    console.log("Submitting moment:", {
-      member: selectedMember,
-      skill: selectedSkills,
-      note: noteText,
-      emoji: selectedEmoji,
-    })
-    setShowSuccessScreen(true)
+
+    const insertSkills = async () => {
+      try {
+        for (const skill of selectedSkills) {
+          const { data, error } = await supabase
+            .from('users-skills')
+            .insert([
+              {
+                user_info_id: selectedMember?.id,
+                skill_id: skill.id,
+                description: noteText,
+                emoji: selectedEmoji,
+              },
+            ])
+            .single()
+          if (error) throw error
+        }
+        setShowSuccessScreen(true)
+      } catch (error: any) {
+        console.error('Failed to insert skills:', error.message)
+      }
+    }
+    insertSkills()
   }
 
   const renderPaginationDots = () => (
@@ -183,23 +242,23 @@ export function WelcomeSlider() {
 
       <div className="content-div min-h-[440px] sm:min-h-[390px] lg:min-h-[390px] max-h-[440px] sm:max-h-[350px] lg:max-h-[390px] overflow-y-auto mb-4 sm:mb-6">
         <div className="flex flex-wrap justify-center gap-2 sm:gap-3 max-w-5xl mx-auto text-center px-2">
-          {skills.map((skill,id) => (
+          {skills.map((skill) => (
             <button
-              key={id}
+              key={skill.id}
               onClick={() => {
-                if (selectedSkills.includes(skill)) {
-                  setSelectedSkills(selectedSkills.filter((s) => s !== skill))
+                if (selectedSkills.some((s) => s.name === skill.name)) {
+                  setSelectedSkills(selectedSkills.filter((s) => s.name !== skill.name))
                 } else {
-                  setSelectedSkills([...selectedSkills, skill])
+                  setSelectedSkills([...selectedSkills, { id: skill.id.toString(), name: skill.name }])
                 }
               }}
               className={`h-8 sm:h-10 px-3 sm:px-4 align-middle rounded-full border-2 text-sm sm:text-base lg:text-[18px] tracking-[0.5px] font-medium transition-colors font-body ${
-                selectedSkills.includes(skill)
+                selectedSkills.some((s) => s.name === skill.name)
                   ? "bg-green-50 text-green-500 border-green-500"
                   : "bg-white text-gray-600 border-gray-300 hover:border-gray-400"
               }`}
             >
-              {skill}
+              {skill.name}
             </button>
           ))}
         </div>
@@ -337,7 +396,7 @@ export function WelcomeSlider() {
           )}
         </div>
       </div>
-      <InviteModal isOpen={isInviteModalOpen} onClose={() => setIsInviteModalOpen(false)} />
+      <InviteModal isOpen={isInviteModalOpen} onClose={() => setIsInviteModalOpen(false)} onInvitesSent={handleInvitesSent} authenticatedUser={authenticatedUser} />
     </>
   )
 }

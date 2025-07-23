@@ -1,177 +1,207 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { useState, useEffect } from "react"
-import { Button } from "../components/ui/button"
-import { Input } from "../components/ui/input"
-import { Checkbox } from "../components/ui/checkbox"
-import { Eye, EyeOff, Check } from "lucide-react"
-import Link from "next/link"
-import { CustomDropdown, DropdownItem } from "./drop-down"
-import Image from "next/image"
-import { createSupabaseServerClient } from '../../lib/supabase/client'
-import Swal from 'sweetalert2'
-import { useSearchParams } from 'next/navigation'
+import React, { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
+import Link from "next/link";
+import Image from "next/image";
+import Swal from "sweetalert2";
+import { Eye, EyeOff, Check } from "lucide-react";
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
+import { Checkbox } from "../components/ui/checkbox";
+import { CustomDropdown, DropdownItem } from "./drop-down";
+import { supabase } from "@/lib/supabase/client";
 
-const Label = ({
-    htmlFor,
-    className,
-    children,
-}: { htmlFor?: string; className?: string; children: React.ReactNode }) => (
-    <label htmlFor={htmlFor} className={className}>
-        {children}
-    </label>
-)
+
+const Label = ({ htmlFor, className, children }) => (
+  <label htmlFor={htmlFor} className={className}>
+    {children}
+  </label>
+);
 
 export default function SquadraForm() {
-    const supabase = createSupabaseServerClient();
-    const searchParams = useSearchParams();
-    const [refCode, setRefCode] = useState<string | null>(null);
+  
+  const searchParams = useSearchParams();
+  const [refCode, setRefCode] = useState(null);
+  const [showPassword, setShowPassword] = useState(false);
+  const [formData, setFormData] = useState({
+    name: "Melissa Duck",
+    email: "melissa.duck@looneytunes.com",
+    password: "",
+    teamName: "",
+    teamRole: "",
+    emailConsent: true,
+  });
+  const [errors, setErrors] = useState({
+    name: "",
+    email: "",
+    password: "",
+    teamName: "",
+    teamRole: "",
+  });
 
-    useEffect(() => {
-        const code = searchParams.get("ref");
-        if (code) validateReferralCode(code);
-    }, []);
+  useEffect(() => {
+    const code = searchParams.get("ref");
+    if (code) validateReferralCode(code);
+  }, []);
 
-    const validateReferralCode = async (code: string) => {
+  const validateReferralCode = async (code) => {
+    const { data } = await supabase
+      .from("users-info")
+      .select("referral_code")
+      .eq("referral_code", code)
+      .maybeSingle();
+
+    if (data?.referral_code === code) {
+      setRefCode(code);
+    } else {
+      setRefCode(null);
+    }
+  };
+
+  const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const validatePassword = (password: String) => password.length >= 6;
+
+  const handleInputChange = (field, value) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+    let error = "";
+    switch (field) {
+      case "name":
+        error = value.trim() === "" ? "Name is required" : "";
+        break;
+      case "email":
+        error = !validateEmail(value) ? "Please enter a valid email address" : "";
+        break;
+      case "password":
+        error = !validatePassword(value) ? "Password must be at least 6 characters" : "";
+        break;
+      case "teamName":
+        error = value.trim() === "" ? "Team name is required" : "";
+        break;
+      case "teamRole":
+        error = value === "" ? "Please select your role" : "";
+        break;
+    }
+    setErrors((prev) => ({ ...prev, [field]: error }));
+  };
+
+  const isEmailValid = validateEmail(formData.email);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const { email, password, name, teamName, teamRole, emailConsent } = formData;
+  
+    // 1. Sign up the user
+    const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+      email,
+      password,
+    });
+  
+    if (signUpError) {
+      Swal.fire({
+        icon: "error",
+        title: "Signup Failed",
+        text:
+          signUpError.message === "User already registered"
+            ? "An account with this email already exists. Please log in instead."
+            : signUpError.message,
+      });
+      return;
+    }
+  
+    const userId = signUpData.user?.id;
+    if (!userId) {
+      Swal.fire({
+        icon: "error",
+        title: "Signup Error",
+        text: "User ID not returned. Please try again.",
+      });
+      return;
+    }
+  
+    // 2. Try to find pre-invited user row by email
+    const { data: existingUserInfo } = await supabase
+      .from("users-info")
+      .select("id, referral_code")
+      .eq("email", email)
+      .maybeSingle();
+  
+    let referralCode = existingUserInfo?.referral_code || "";
+  
+    // 3. Generate referral_code if not already present
+    if (!referralCode) {
+      let isUnique = false;
+      while (!isUnique) {
+        const candidate = Math.random().toString(36).substring(2, 8).toUpperCase();
         const { data } = await supabase
-            .from("users-info")
-            .select("referral_code")
-            .eq("referral_code", code)
-            .maybeSingle();
-
-        if (data) {
-            setRefCode(code);
-        } else {
-            setRefCode(null); // ignore invalid ref
+          .from("users-info")
+          .select("id")
+          .eq("referral_code", candidate)
+          .maybeSingle();
+  
+        if (!data) {
+          referralCode = candidate;
+          isUnique = true;
         }
+      }
     }
-
-    const [showPassword, setShowPassword] = useState(false)
-    const [formData, setFormData] = useState({
-        name: "Melissa Duck",
-        email: "melissa.duck@looneytunes.com",
-        password: "",
-        teamName: "",
-        teamRole: "",
-        emailConsent: true,
-    })
-    const [errors, setErrors] = useState({
-        name: "",
-        email: "",
-        password: "",
-        teamName: "",
-        teamRole: "",
-    })
-
-    const validateEmail = (email: string) => {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-        return emailRegex.test(email)
-    }
-
-    const validatePassword = (password: string) => {
-        return password.length >= 6
-    }
-
-    const handleInputChange = (field: string, value: string) => {
-        setFormData((prev) => ({ ...prev, [field]: value }))
-
-        let error = ""
-        switch (field) {
-            case "name":
-                error = value.trim() === "" ? "Name is required" : ""
-                break
-            case "email":
-                error = !validateEmail(value) ? "Please enter a valid email address" : ""
-                break
-            case "password":
-                error = !validatePassword(value) ? "Password must be at least 6 characters" : ""
-                break
-            case "teamName":
-                error = value.trim() === "" ? "Team name is required" : ""
-                break
-            case "teamRole":
-                error = value === "" ? "Please select your role" : ""
-                break
-        }
-
-        setErrors((prev) => ({ ...prev, [field]: error }))
-    }
-
-    const isEmailValid = validateEmail(formData.email)
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        debugger
-        const { data, error } = await supabase
-            .from('users-info')
-            .select('user_id, email')
-            .eq('email', formData.email)
-            .single();
-
-        if (data) {
-            Swal.fire({
-                icon: 'error',
-                title: 'User Already Exists',
-                text: 'An account with this email already exists. Please log in or use a different email.',
-            });
-            return;
-        }
-
-        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-            email: formData.email,
-            password: formData.password,
-        });
-
-        if (signUpError) {
-            let errorMsg = signUpError.message;
-            if (
-                errorMsg.toLowerCase().includes('user already registered') ||
-                errorMsg.toLowerCase().includes('user already exists') ||
-                errorMsg.toLowerCase().includes('duplicate key')
-            ) {
-                errorMsg = 'An account with this email already exists. Please log in or use a different email.';
-            }
-            Swal.fire({
-                icon: 'error',
-                title: 'Signup Failed',
-                text: errorMsg,
-            });
-            return;
-        }
-
-        const userId = signUpData?.user?.id;
-        const newReferralCode = Math.random().toString(36).substring(2, 8).toUpperCase();
-
-        const { data: userInfoData, error: userInfoError } = await supabase
-            .from('users-info')
-            .insert([
-                {
-                    user_id: userId,
-                    name: formData.name,
-                    team_name: formData.teamName,
-                    team_role: formData.teamRole,
-                    email: formData.email,
-                    referral_code: newReferralCode,
-                    referred_by: refCode ?? null,
-                },
-            ])
-            .select();
-
+  
+    // 4. If invited user exists (matched by email) → update their row
+    if (existingUserInfo) {
+      const { error: updateError } = await supabase
+        .from("users-info")
+        .update({
+          user_id: userId,
+          name,
+          team_name: teamName,
+          team_role: teamRole,
+          email_consent: emailConsent,
+          referral_code: referralCode,
+        })
+        .eq("id", existingUserInfo.id); // use internal row id to avoid issues
+  
+      if (updateError) {
         Swal.fire({
-            icon: 'success',
-            title: 'Account Created!',
-            text: 'A confirmation email has been sent. Please check your inbox.',
-            confirmButtonText: 'OK',
-            confirmButtonColor: '#3FD24D',
-            allowOutsideClick: false,
-        }).then(() => {
-            window.location.href = '/login';
+          icon: "error",
+          title: "Update Failed",
+          text: updateError.message,
         });
-    };
-
+        return;
+      }
+    } else {
+      // 5. New user (not invited) → insert new row
+      const { error: insertError } = await supabase.from("users-info").insert({
+        user_id: userId,
+        email,
+        name,
+        team_name: teamName,
+        team_role: teamRole,
+        email_consent: emailConsent,
+        referral_code: referralCode,
+        referred_by: refCode || null, // optional: only for signups with referral
+      });
+  
+      if (insertError) {
+        Swal.fire({
+          icon: "error",
+          title: "Insert Failed",
+          text: insertError.message,
+        });
+        return;
+      }
+    }
+  
+    // 6. All done
+    Swal.fire({
+      icon: "success",
+      title: "Signup Successful!",
+      text: "Please check your email to confirm your account.",
+    });
+  };
+  
+  
     return (
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4 bg-white">
+        <div className="min-h-scree flex items-center justify-center p-4 bg-white">
             <div className="">
                 {/* Logo */}
                 <div className="flex items-center mb-12">
