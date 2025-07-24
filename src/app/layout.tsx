@@ -5,6 +5,7 @@ import "./globals.css";
 import { Providers } from "./providers";
 import { StartupInitializer } from "./startup-initializer";
 import { SpeedInsights } from '@vercel/speed-insights/next';
+import { Analytics } from "@vercel/analytics/next"
 
 
 const montserrat = Montserrat({
@@ -41,6 +42,7 @@ export default function RootLayout({
         <StartupInitializer />
           {children}
           <SpeedInsights />
+          <Analytics />
           </Providers>
       </body>
     </html>
