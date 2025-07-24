@@ -5,7 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/avatar"
 import { Badge } from "../components/ui/badge"
 import { Input } from "../components/ui/input"
 import { CustomDropdown, DropdownItem } from "./drop-down"
-import { Heart, Slack, Users, Eye, Info, Mountain, MessageSquareCode, IceCream, MessageSquare } from "lucide-react"
+import { Heart,  Users, Eye, Info, Mountain, MessageSquareCode, IceCream, MessageSquare } from "lucide-react"
 import { useRouter } from "next/navigation"
 import React, { useState } from "react";
 import Image from "next/image"
@@ -93,11 +93,8 @@ export default function Channels() {
         <div className="mt-14 lg:mt-0 flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-8 lg:mb-10.5 fixed-header">
           <div className="flex items-center gap-2 sm:gap-4">
             <h4 className="text-lg sm:text-2xl lg:text-[34px] font-semibold text-gray-900">Looney Tunes&#39; channel</h4>
-            <Button className="hidden xs:flex bg-gray-50 hover:bg-gray-100 border-1 border-[#C7CACD] text-black px-2 sm:px-4 py-1 sm:py-2  sm:text-sm rounded-lg items-center gap-2 text-sm font-medium">
-              <Slack className="w-4 h-4" />
-              Add to<span className="font-[900]">Slack</span>
-            </Button>
           </div>
+          <div className="hidden lg:flex">
           <CustomDropdown
             align="right"
             trigger={
@@ -147,6 +144,7 @@ export default function Channels() {
               </DropdownItem>
             </div>
           </CustomDropdown>
+          </div>
         </div>
 
         <div className="flex w-full">

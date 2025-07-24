@@ -224,6 +224,7 @@ export default function CaptureAMoment() {
         <div className="mt-10 lg:mt-0 flex flex-1 flex-col item-center px-[1.5rem] pb-[3.9rem] justify-center">
             <div className="flex justify-between items-center align-middle mt-[1.25rem] mb-[1.1875rem]">
                 <h4 className="lg:text-[34px] font-[600] text-gray-900 tracking-[0.25px]">Capture a Moment of Flow</h4>
+                <div className="hidden lg:flex">
                 <CustomDropdown
                     align="right"
                     trigger={
@@ -266,6 +267,8 @@ export default function CaptureAMoment() {
                         </DropdownItem>
                     </div>
                 </CustomDropdown>
+                </div>
+
             </div>
             <div className="bg-white w-full h-full flex flex-col rounded-[6px] border-gray-200">
                 <div className="max-w-4xl pl-[1.54rem] pt-[1.94rem]">

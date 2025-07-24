@@ -234,7 +234,7 @@ export default function SquadraForm() {
                 </div>
 
                 {/* Main Heading */}
-                <h1 className="text-6xl font-bold text-gray-900 text-center mb-8">Create your Squadra team</h1>
+                <h1 className="text-2xl lg:text-6xl font-bold text-gray-900 text-center mb-8">Create your Squadra team</h1>
 
                 <form className="space-y-6 lg:w-[44.8%] lg:m-auto font-body" onSubmit={handleSubmit}>
                     {/* Name Field */}

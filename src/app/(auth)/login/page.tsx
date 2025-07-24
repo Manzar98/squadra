@@ -159,7 +159,7 @@ export default function LoginPage() {
               </div>
               {error && <p>{error}</p>}
             </form>
-            <div className="w-full flex justify-center mt-4">
+            <div className="w-full flex justify-left mt-8">
               <button
                 type="button"
                 onClick={redirectToGoogleAuth}

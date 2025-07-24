@@ -4,6 +4,8 @@ import { Montserrat, Raleway } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
 import { StartupInitializer } from "./startup-initializer";
+import { SpeedInsights } from '@vercel/speed-insights/next';
+
 
 const montserrat = Montserrat({
   subsets: ["latin"],
@@ -38,6 +40,7 @@ export default function RootLayout({
         <Providers>
         <StartupInitializer />
           {children}
+          <SpeedInsights />
           </Providers>
       </body>
     </html>

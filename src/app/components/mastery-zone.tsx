@@ -43,8 +43,8 @@ export default function MasteryZone() {
     <div className="flex flex-1 flex-col bg-[#F5F6F5]">
       <div className="px-2 sm:px-4 lg:px-6 pt-2 sm:pt-4.5">
         <div className="mt-14 lg:mt-0 flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-8 lg:mb-10.5 fixed-header">
-          <div className="flex items-center gap-2 sm:gap-4">
-            <h4 className="text-lg sm:text-2xl lg:text-[34px] font-semibold text-gray-900">Your Mastery Zones</h4>
+          <div className="flex items-center gap-2 sm:gap-4 mt-10 lg:mt-0">
+            <h4 className="text-2xl lg:text-[34px] font-semibold text-gray-900">Your Mastery Zones</h4>
             <Tooltip text="This is the channel for Looney Tunes." position="bottom">
               <span className="flex items-center gap-1 text-sm sm:text-base lg:text-lg text-gray-600 font-medium">
                 <Info className="w-6 h-6 text-gray-400" aria-hidden="true" />
@@ -52,55 +52,57 @@ export default function MasteryZone() {
             </Tooltip>
 
           </div>
-          <CustomDropdown
-            align="right"
-            trigger={
-              <div className="w-12 h-12 rounded-full overflow-hidden cursor-pointer hover:ring-2 hover:ring-gray-200 transition-all">
-                <Avatar className="w-full h-full">
-                  <AvatarImage
-                    src="/thumb8.jpg"
-                    alt="Melissa Duck profile picture"
-                    className="w-full h-full object-cover"
-                  />
-                  <AvatarFallback className="bg-yellow-400 text-white font-semibold">MD</AvatarFallback>
-                </Avatar>
+          <div className="hidden lg:flex">
+            <CustomDropdown
+              align="right"
+              trigger={
+                <div className="w-12 h-12 rounded-full overflow-hidden cursor-pointer hover:ring-2 hover:ring-gray-200 transition-all">
+                  <Avatar className="w-full h-full">
+                    <AvatarImage
+                      src="/thumb8.jpg"
+                      alt="Melissa Duck profile picture"
+                      className="w-full h-full object-cover"
+                    />
+                    <AvatarFallback className="bg-yellow-400 text-white font-semibold">MD</AvatarFallback>
+                  </Avatar>
+                </div>
+              }
+            >
+              {/* User Info Header */}
+              <div className="px-4 py-3 border-b border-gray-200">
+                <div className="text-[12px] font-medium text-black uppercase tracking-[2px] mb-1">PRODUCT MANAGER</div>
+                <div className="font-semibold text-black text-[1rem] tracking-[0.15px] font-body">Melissa Duck</div>
+                <div className="text-sm text-black font-body font-[400] tracking-[0.25px]">melissa.duck@looneytunes.com</div>
               </div>
-            }
-          >
-            {/* User Info Header */}
-            <div className="px-4 py-3 border-b border-gray-200">
-              <div className="text-[12px] font-medium text-black uppercase tracking-[2px] mb-1">PRODUCT MANAGER</div>
-              <div className="font-semibold text-black text-[1rem] tracking-[0.15px] font-body">Melissa Duck</div>
-              <div className="text-sm text-black font-body font-[400] tracking-[0.25px]">melissa.duck@looneytunes.com</div>
-            </div>
 
-            {/* Menu Items */}
-            <div className="py-1">
-              <DropdownItem onClick={handleProfileSettings}>
-                <div className="flex items-center font-body text-[18px] tracking-[0.5px] font-[500]">
-                  Profile settings
-                </div>
-              </DropdownItem>
+              {/* Menu Items */}
+              <div className="py-1">
+                <DropdownItem onClick={handleProfileSettings}>
+                  <div className="flex items-center font-body text-[18px] tracking-[0.5px] font-[500]">
+                    Profile settings
+                  </div>
+                </DropdownItem>
 
-              <DropdownItem onClick={handleTeamSettings}>
-                <div className="flex items-center font-body text-[18px] tracking-[0.5px] font-[500]">
-                  Team settings
-                </div>
-              </DropdownItem>
+                <DropdownItem onClick={handleTeamSettings}>
+                  <div className="flex items-center font-body text-[18px] tracking-[0.5px] font-[500]">
+                    Team settings
+                  </div>
+                </DropdownItem>
 
-              <DropdownItem onClick={handleGetHelp}>
-                <div className="flex items-center font-body text-[18px] tracking-[0.5px] font-[500]">
-                  Get help
-                </div>
-              </DropdownItem>
+                <DropdownItem onClick={handleGetHelp}>
+                  <div className="flex items-center font-body text-[18px] tracking-[0.5px] font-[500]">
+                    Get help
+                  </div>
+                </DropdownItem>
 
-              <DropdownItem onClick={handleSignOut}>
-                <div className="flex items-center font-body text-[18px] tracking-[0.5px] font-[500]">
-                  Sign out
-                </div>
-              </DropdownItem>
-            </div>
-          </CustomDropdown>
+                <DropdownItem onClick={handleSignOut}>
+                  <div className="flex items-center font-body text-[18px] tracking-[0.5px] font-[500]">
+                    Sign out
+                  </div>
+                </DropdownItem>
+              </div>
+            </CustomDropdown>
+          </div>
         </div>
 
         <div className="">
@@ -210,7 +212,7 @@ export default function MasteryZone() {
                         {/* </Tooltip>  */}
                       </div>
                       <p className="text-sm text-[#5B5C5B] font-normal mb-2 font-body tracking-[0.25px]">
-                      Spock read minds, but Squadmates aren&apos;t Vulcans. Just tell &apos;em what you&apos;re thinking.
+                        Spock read minds, but Squadmates aren&apos;t Vulcans. Just tell &apos;em what you&apos;re thinking.
                       </p>
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-1">
@@ -306,7 +308,7 @@ export default function MasteryZone() {
                       {/* </Tooltip> */}
                     </div>
                     <p className="text-sm text-[#5B5C5B] font-normal mb-2 font-body tracking-[0.25px]">
-                    Spock read minds, but Squadmates aren&apos;t Vulcans. Just tell &apos;em what you&apos;re thinking.
+                      Spock read minds, but Squadmates aren&apos;t Vulcans. Just tell &apos;em what you&apos;re thinking.
                     </p>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-1">
@@ -352,7 +354,7 @@ export default function MasteryZone() {
                       {/* </Tooltip> */}
                     </div>
                     <p className="text-sm text-[#5B5C5B] font-normal mb-2 font-body tracking-[0.25px]">
-                    Spock read minds, but Squadmates aren&apos;t Vulcans. Just tell &apos;em what you&apos;re thinking.
+                      Spock read minds, but Squadmates aren&apos;t Vulcans. Just tell &apos;em what you&apos;re thinking.
                     </p>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-1">
@@ -398,7 +400,7 @@ export default function MasteryZone() {
                       {/* </Tooltip>  */}
                     </div>
                     <p className="text-sm text-[#5B5C5B] font-normal mb-2 font-body tracking-[0.25px]">
-                    Spock read minds, but Squadmates aren&apos;t Vulcans. Just tell &apos;em what you&apos;re thinking.
+                      Spock read minds, but Squadmates aren&apos;t Vulcans. Just tell &apos;em what you&apos;re thinking.
                     </p>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-1">
@@ -444,7 +446,7 @@ export default function MasteryZone() {
                       {/* </Tooltip>  */}
                     </div>
                     <p className="text-sm text-[#5B5C5B] font-normal mb-2 font-body tracking-[0.25px]">
-                    Spock read minds, but Squadmates aren&apos;t Vulcans. Just tell &apos;em what you&apos;re thinking.
+                      Spock read minds, but Squadmates aren&apos;t Vulcans. Just tell &apos;em what you&apos;re thinking.
                     </p>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-1">
@@ -490,7 +492,7 @@ export default function MasteryZone() {
                       {/* </Tooltip>  */}
                     </div>
                     <p className="text-sm text-[#5B5C5B] font-normal mb-2 font-body tracking-[0.25px]">
-                    Spock read minds, but Squadmates aren&apos;t Vulcans. Just tell &apos;em what you&apos;re thinking.
+                      Spock read minds, but Squadmates aren&apos;t Vulcans. Just tell &apos;em what you&apos;re thinking.
                     </p>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-1">
@@ -536,7 +538,7 @@ export default function MasteryZone() {
                       {/* </Tooltip> */}
                     </div>
                     <p className="text-sm text-[#5B5C5B] font-normal mb-2 font-body tracking-[0.25px]">
-                    Spock read minds, but Squadmates aren&apos;t Vulcans. Just tell &apos;em what you&apos;re thinking.
+                      Spock read minds, but Squadmates aren&apos;t Vulcans. Just tell &apos;em what you&apos;re thinking.
                     </p>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-1">
