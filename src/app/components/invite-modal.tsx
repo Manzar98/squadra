@@ -49,7 +49,6 @@ export function InviteModal({ isOpen, onClose, onInvitesSent, authenticatedUser 
       if (authenticatedUser.referral_code) {
         setReferralCode(authenticatedUser.referral_code);
       } else {
-        // Generate unique referral code
         let newCode = uuidv4().slice(0, 8);
         let codeExists = true;
 
@@ -72,9 +71,7 @@ export function InviteModal({ isOpen, onClose, onInvitesSent, authenticatedUser 
           .update({ referral_code: newCode })
           .eq("user_id", authenticatedUser.id);
 
-        if (!updateError) {
-          setReferralCode(newCode);
-        }
+        if (!updateError) setReferralCode(newCode);
       }
     };
 
@@ -82,12 +79,7 @@ export function InviteModal({ isOpen, onClose, onInvitesSent, authenticatedUser 
   }, [authenticatedUser?.id, authenticatedUser?.referral_code, supabase]); 
 
   const addAnotherField = () => {
-    const newField: InviteField = {
-      id: Date.now().toString(),
-      email: "",
-      name: "",
-    }
-    setInviteFields([...inviteFields, newField])
+    setInviteFields([...inviteFields, { id: Date.now().toString(), email: "", name: "" }])
   }
 
   const updateField = (id: string, field: "email" | "name", value: string) => {
@@ -108,16 +100,9 @@ export function InviteModal({ isOpen, onClose, onInvitesSent, authenticatedUser 
     })
 
     setEmailErrors(newEmailErrors)
-
     if (hasError) return
 
     const validInvites = inviteFields.filter((field) => field.email)
-
-    const newMembers: TeamMember[] = validInvites.map((field) => ({
-      id: field.id,
-      name: field.name,
-      email: field.email,
-    }))
 
     let usersToUpsert = validInvites.map((field) => ({
       email: field.email,
@@ -125,29 +110,47 @@ export function InviteModal({ isOpen, onClose, onInvitesSent, authenticatedUser 
       referred_by: referralCode,
     }))
 
-    if (usersToUpsert.length > 0 && supabase) { 
-      const { data: existingUsers } = await supabase
-      .from("users-info")
-      .select("email")
-      .eq("email", usersToUpsert.map(user => user.email))
-      .single();
-      if (existingUsers) {
-        console.log(`User with email ${existingUsers.email} already exists, skipping insert.`);
-        usersToUpsert = usersToUpsert.filter(user => user.email !== existingUsers.email);
+    let insertedUsers: { id: string; email: string }[] = []
+    if (usersToUpsert.length > 0 && supabase) {
+      // Filter out existing users
+      const { data: existingUsers, error } = await supabase
+        .from("users-info")
+        .select("email")
+        .in("email", usersToUpsert.map(user => user.email))
+
+      if (error) {
+        console.error("Error checking existing users:", error)
+        return
       }
+
+      if (existingUsers?.length) {
+        const existingEmails = new Set(existingUsers.map(u => u.email))
+        usersToUpsert = usersToUpsert.filter(user => !existingEmails.has(user.email))
+      }
+
       if (usersToUpsert.length > 0) {
-        const { error } = await supabase.from("users-info").insert(usersToUpsert)
-        if (error) {
-          console.error("Error inserting invited users:", error)
-          return
-        }
+        // Insert and get IDs
+        const { data, error: insertError } = await supabase
+          .from("users-info")
+          .insert(usersToUpsert)
+          .select("id,email")
+
+        if (insertError) console.error("Error inserting invited users:", insertError)
+        else insertedUsers = data || []
       }
     }
 
-    if (newMembers.length > 0) {
-      onInvitesSent(newMembers)
-    }
+    // Map temporary IDs to actual database IDs
+    const idMap = new Map(insertedUsers.map(u => [u.email, u.id]))
+    const newMembers: TeamMember[] = validInvites.map((field) => ({
+      id: idMap.get(field.email) ?? field.id, // replaced with new ID if inserted
+      name: field.name,
+      email: field.email,
+    }))
 
+    if (newMembers.length > 0) onInvitesSent(newMembers)
+
+    // Send invitation links
     for (const field of validInvites) {
       if (field.email && referralCode) {
         const inviteLink = `${window.location.origin}/signup?ref=${referralCode}`
@@ -161,36 +164,25 @@ export function InviteModal({ isOpen, onClose, onInvitesSent, authenticatedUser 
   }
 
   const sendInvitation = async (email: string, name: string) => {
-    const subject = "You're invited to join Squadra"
-    const body = `
-      Hi ${name || "there"},
-      <br /><br />
-      You've been invited to join Squadra! Click the link below to accept the invitation:
-      <br />
-      <a href="${window.location.origin}/signup?ref=${referralCode}" target="_blank">Join Squadra</a>
-      <br /><br />
-      If you have any questions, feel free to reach out.
-      <br /><br />
-      Best regards,
-      <br />
-      The Squadra Team
-      `;
     try {
       await fetch("/api/sendEmail", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email,
-          subject,
-          body,
+          subject: "You're invited to join Squadra",
+          body: `
+            Hi ${name || "there"},
+            <br /><br />
+            You've been invited to join Squadra! Click below:
+            <br />
+            <a href="${window.location.origin}/signup?ref=${referralCode}" target="_blank">Join Squadra</a>
+          `,
         }),
       })
     } catch (err) {
       console.error("Failed to send invitation email:", err)
     }
-
   }
 
   if (!isOpen) return null
