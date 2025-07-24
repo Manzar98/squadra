@@ -4,7 +4,6 @@ import { useState } from "react"
 import { Eye, EyeOff } from "lucide-react"
 import { Button } from "../../components/ui/button"
 import { Input } from "../../components/ui/input"
-import { useRouter } from "next/navigation"
 import Image from "next/image"
 import { createSupabaseServerClient } from '../../../lib/supabase/client'
 const supabase = createSupabaseServerClient();
@@ -13,11 +12,9 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
-  const router = useRouter()
   const [emailError, setEmailError] = useState(false)
   const [passwordError, setPasswordError] = useState(false)
   const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
 
 
 
@@ -31,7 +28,6 @@ export default function LoginPage() {
   
     if (isEmailEmpty || isPasswordEmpty) return;
   
-    setLoading(true);
     setError(null);
   
     const { data, error } = await supabase.auth.signInWithPassword({
@@ -39,7 +35,6 @@ export default function LoginPage() {
       password,
     });
   
-    setLoading(false);
   
     if (error) {
       setError(error.message);

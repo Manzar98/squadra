@@ -6,6 +6,7 @@ import { Input } from "../components/ui/input"
 import { X, PlusCircle } from "lucide-react"
 import { createSupabaseClientWithToken } from "../../lib/supabase/server"
 import { v4 as uuidv4 } from "uuid"
+import { SupabaseClient } from "@supabase/supabase-js";
 
 interface InviteField {
   id: string
@@ -24,9 +25,9 @@ interface InviteModalProps {
   isOpen: boolean
   onClose: () => void
   onInvitesSent: (newMembers: TeamMember[]) => void
-  authenticatedUser?: {
-    id: string
-    referral_code?: string
+  authenticatedUser: {
+    id: string | null
+    referral_code?: string | null
   }
 }
 
@@ -34,53 +35,51 @@ export function InviteModal({ isOpen, onClose, onInvitesSent, authenticatedUser 
   const [inviteFields, setInviteFields] = useState<InviteField[]>([{ id: "1", email: "", name: "" }])
   const [emailErrors, setEmailErrors] = useState<Record<string, boolean>>({})
   const [referralCode, setReferralCode] = useState<string | null>(null)
-  const [supabase, setSupabase] = useState<any>(null);
+  const [supabase, setSupabase] = useState<SupabaseClient | null>(null);
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const token = window.sessionStorage.getItem("supabaseToken") || "";
-      setSupabase(createSupabaseClientWithToken(token));
-    }
+    const token = window.sessionStorage.getItem("supabaseToken") || "";
+    setSupabase(createSupabaseClientWithToken(token));
   }, []);
+
   useEffect(() => {
     const getOrCreateReferralCode = async () => {
-      
-      if(!authenticatedUser?.id) return
-      // Check if user already has a referral code
-      if (authenticatedUser?.referral_code) {
-        setReferralCode(authenticatedUser?.referral_code)
+      if (!authenticatedUser?.id || !supabase) return;
+
+      if (authenticatedUser.referral_code) {
+        setReferralCode(authenticatedUser.referral_code);
       } else {
         // Generate unique referral code
-        let newCode = uuidv4().slice(0, 8)
-        let codeExists = true
+        let newCode = uuidv4().slice(0, 8);
+        let codeExists = true;
 
         while (codeExists) {
           const { data: existing } = await supabase
             .from("users-info")
             .select("user_id")
             .eq("referral_code", newCode)
-            .maybeSingle()
+            .maybeSingle();
 
           if (!existing) {
-            codeExists = false
+            codeExists = false;
           } else {
-            newCode = uuidv4().slice(0, 8)
+            newCode = uuidv4().slice(0, 8);
           }
         }
 
         const { error: updateError } = await supabase
           .from("users-info")
           .update({ referral_code: newCode })
-          .eq("user_id", authenticatedUser?.id)
+          .eq("user_id", authenticatedUser.id);
 
         if (!updateError) {
-          setReferralCode(newCode)
+          setReferralCode(newCode);
         }
       }
-    }
+    };
 
-    getOrCreateReferralCode()
-  }, [authenticatedUser?.id])
+    getOrCreateReferralCode();
+  }, [authenticatedUser?.id, authenticatedUser?.referral_code, supabase]); 
 
   const addAnotherField = () => {
     const newField: InviteField = {
@@ -120,21 +119,28 @@ export function InviteModal({ isOpen, onClose, onInvitesSent, authenticatedUser 
       email: field.email,
     }))
 
-    const usersToUpsert = validInvites.map((field) => ({
+    let usersToUpsert = validInvites.map((field) => ({
       email: field.email,
       name: field.name || null,
       referred_by: referralCode,
     }))
 
-    if (usersToUpsert.length > 0) {
-      const { error } = await supabase.from("users-info").insert(usersToUpsert, {
-        onConflict: "email",
-        ignoreDuplicates: true,
-      })
-
-      if (error) {
-        console.error("Error inserting invited users:", error)
-        return
+    if (usersToUpsert.length > 0 && supabase) { 
+      const { data: existingUsers } = await supabase
+      .from("users-info")
+      .select("email")
+      .eq("email", usersToUpsert.map(user => user.email))
+      .single();
+      if (existingUsers) {
+        console.log(`User with email ${existingUsers.email} already exists, skipping insert.`);
+        usersToUpsert = usersToUpsert.filter(user => user.email !== existingUsers.email);
+      }
+      if (usersToUpsert.length > 0) {
+        const { error } = await supabase.from("users-info").insert(usersToUpsert)
+        if (error) {
+          console.error("Error inserting invited users:", error)
+          return
+        }
       }
     }
 
@@ -156,7 +162,6 @@ export function InviteModal({ isOpen, onClose, onInvitesSent, authenticatedUser 
 
   const sendInvitation = async (email: string, name: string) => {
     const subject = "You're invited to join Squadra"
-    email
     const body = `
       Hi ${name || "there"},
       <br /><br />

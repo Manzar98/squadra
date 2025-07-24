@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -12,19 +12,41 @@ import { Checkbox } from "../components/ui/checkbox";
 import { CustomDropdown, DropdownItem } from "./drop-down";
 import { supabase } from "@/lib/supabase/client";
 
+interface LabelProps {
+  htmlFor: string;
+  className?: string;
+  children: React.ReactNode;
+}
 
-const Label = ({ htmlFor, className, children }) => (
+const Label: React.FC<LabelProps> = ({ htmlFor, className, children }) => (
   <label htmlFor={htmlFor} className={className}>
     {children}
   </label>
 );
 
+interface FormData {
+  name: string;
+  email: string;
+  password: string;
+  teamName: string;
+  teamRole: string;
+  emailConsent: boolean;
+}
+
+interface FormErrors {
+  name: string;
+  email: string;
+  password: string;
+  teamName: string;
+  teamRole: string;
+}
+
 export default function SquadraForm() {
-  
   const searchParams = useSearchParams();
-  const [refCode, setRefCode] = useState(null);
+  const [refCode, setRefCode] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
-  const [formData, setFormData] = useState({
+
+  const [formData, setFormData] = useState<FormData>({
     name: "Melissa Duck",
     email: "melissa.duck@looneytunes.com",
     password: "",
@@ -32,7 +54,8 @@ export default function SquadraForm() {
     teamRole: "",
     emailConsent: true,
   });
-  const [errors, setErrors] = useState({
+
+  const [errors, setErrors] = useState<FormErrors>({
     name: "",
     email: "",
     password: "",
@@ -40,43 +63,42 @@ export default function SquadraForm() {
     teamRole: "",
   });
 
-  useEffect(() => {
-    const code = searchParams.get("ref");
-    if (code) validateReferralCode(code);
-  }, []);
-
-  const validateReferralCode = async (code) => {
+  const validateReferralCode = useCallback(async (code: string) => {
     const { data } = await supabase
       .from("users-info")
       .select("referral_code")
       .eq("referral_code", code)
       .maybeSingle();
 
-    if (data?.referral_code === code) {
-      setRefCode(code);
-    } else {
-      setRefCode(null);
-    }
-  };
+    setRefCode(data?.referral_code === code ? code : null);
+  }, []);
 
-  const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  const validatePassword = (password: String) => password.length >= 6;
+  useEffect(() => {
+    const code = searchParams.get("ref");
+    if (code) validateReferralCode(code);
+  }, [searchParams, validateReferralCode]);
 
-  const handleInputChange = (field, value) => {
+  const validateEmail = (email: string) =>
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+  const validatePassword = (password: string) => password.length >= 6;
+
+  const handleInputChange = (field: keyof FormData, value: string | boolean) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     let error = "";
+
     switch (field) {
       case "name":
-        error = value.trim() === "" ? "Name is required" : "";
+        error = value === "" ? "Name is required" : "";
         break;
       case "email":
-        error = !validateEmail(value) ? "Please enter a valid email address" : "";
+        error = typeof value === "string" && !validateEmail(value) ? "Please enter a valid email address" : "";
         break;
       case "password":
-        error = !validatePassword(value) ? "Password must be at least 6 characters" : "";
+        error = typeof value === "string" && !validatePassword(value) ? "Password must be at least 6 characters" : "";
         break;
       case "teamName":
-        error = value.trim() === "" ? "Team name is required" : "";
+        error = value === "" ? "Team name is required" : "";
         break;
       case "teamRole":
         error = value === "" ? "Please select your role" : "";
@@ -87,16 +109,15 @@ export default function SquadraForm() {
 
   const isEmailValid = validateEmail(formData.email);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const { email, password, name, teamName, teamRole, emailConsent } = formData;
-  
-    // 1. Sign up the user
+
     const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
       email,
       password,
     });
-  
+
     if (signUpError) {
       Swal.fire({
         icon: "error",
@@ -108,7 +129,7 @@ export default function SquadraForm() {
       });
       return;
     }
-  
+
     const userId = signUpData.user?.id;
     if (!userId) {
       Swal.fire({
@@ -118,17 +139,15 @@ export default function SquadraForm() {
       });
       return;
     }
-  
-    // 2. Try to find pre-invited user row by email
+
     const { data: existingUserInfo } = await supabase
       .from("users-info")
       .select("id, referral_code")
       .eq("email", email)
       .maybeSingle();
-  
+
     let referralCode = existingUserInfo?.referral_code || "";
-  
-    // 3. Generate referral_code if not already present
+
     if (!referralCode) {
       let isUnique = false;
       while (!isUnique) {
@@ -138,15 +157,14 @@ export default function SquadraForm() {
           .select("id")
           .eq("referral_code", candidate)
           .maybeSingle();
-  
+
         if (!data) {
           referralCode = candidate;
           isUnique = true;
         }
       }
     }
-  
-    // 4. If invited user exists (matched by email) → update their row
+
     if (existingUserInfo) {
       const { error: updateError } = await supabase
         .from("users-info")
@@ -158,8 +176,8 @@ export default function SquadraForm() {
           email_consent: emailConsent,
           referral_code: referralCode,
         })
-        .eq("id", existingUserInfo.id); // use internal row id to avoid issues
-  
+        .eq("id", existingUserInfo.id);
+
       if (updateError) {
         Swal.fire({
           icon: "error",
@@ -169,7 +187,6 @@ export default function SquadraForm() {
         return;
       }
     } else {
-      // 5. New user (not invited) → insert new row
       const { error: insertError } = await supabase.from("users-info").insert({
         user_id: userId,
         email,
@@ -178,9 +195,9 @@ export default function SquadraForm() {
         team_role: teamRole,
         email_consent: emailConsent,
         referral_code: referralCode,
-        referred_by: refCode || null, // optional: only for signups with referral
+        referred_by: refCode || null,
       });
-  
+
       if (insertError) {
         Swal.fire({
           icon: "error",
@@ -190,8 +207,7 @@ export default function SquadraForm() {
         return;
       }
     }
-  
-    // 6. All done
+
     Swal.fire({
       icon: "success",
       title: "Signup Successful!",

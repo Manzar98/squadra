@@ -1,12 +1,10 @@
 'use client'
 
-import { useState } from 'react'
 import { Input } from './ui/input'
 import Swal from 'sweetalert2'
 
 
 export default function UploadPage() {
-  const [file, setFile] = useState<File | null>(null)
 
   const handleUpload = async (selectedFile: File) => {
     if (!selectedFile) return
@@ -58,7 +56,6 @@ export default function UploadPage() {
         type="file"
         onChange={(e) => {
           const selectedFile = e.target.files?.[0] || null
-          setFile(selectedFile)
           if (selectedFile) handleUpload(selectedFile)
         }}
         className="pl-4 py-3 font-body"

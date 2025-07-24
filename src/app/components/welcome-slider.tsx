@@ -112,11 +112,10 @@ export function WelcomeSlider() {
   const nextSlide = () => setCurrentSlide((prev) => (prev + 1) % 3)
 
   const handleSubmit = () => {
-
     const insertSkills = async () => {
       try {
         for (const skill of selectedSkills) {
-          const { data, error } = await supabase
+          const { error } = await supabase
             .from('users-skills')
             .insert([
               {
@@ -130,12 +129,17 @@ export function WelcomeSlider() {
           if (error) throw error
         }
         setShowSuccessScreen(true)
-      } catch (error: any) {
-        console.error('Failed to insert skills:', error.message)
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          console.error('Failed to insert skills:', error.message)
+        } else {
+          console.error('Failed to insert skills:', error)
+        }
       }
     }
     insertSkills()
   }
+  
 
   const renderPaginationDots = () => (
     <div className="flex justify-center space-x-2 mb-4 sm:mb-6">

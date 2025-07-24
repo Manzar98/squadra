@@ -31,7 +31,7 @@ export async function POST(request: Request) {
   const fileExt = file.name.split('.').pop()
   const filePath = `${user.id}/${Date.now()}.${fileExt}`
 
-  const { data, error: uploadError } = await supabase.storage
+  const { error: uploadError } = await supabase.storage
     .from('user-uploads') // Your bucket name
     .upload(filePath, file, {
       cacheControl: '3600',

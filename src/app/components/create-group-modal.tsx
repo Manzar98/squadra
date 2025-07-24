@@ -21,20 +21,25 @@ export default function CreateGroupModal({ onGroupCreated, onClose }: Props) {
   const [groupName, setGroupName] = useState('')
   const [allUsers, setAllUsers] = useState<User[]>([])
   const [selectedUsers, setSelectedUsers] = useState<string[]>([])
-  const [currentUser, setCurrentUser] = useState<any>(null)
+  const [currentUser, setCurrentUser] = useState<User | null>(null)
 
   useEffect(() => {
     const fetchData = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
+      const { data: { user } } = await supabase.auth.getUser();
       if (user) {
-        setCurrentUser(user)
-        const { data: users } = await supabase.from('users-info').select('id, name, user_id')
-        if (users) setAllUsers(users.filter((u) => u.user_id !== user.id))
+        const current: User = {
+          id: user.id,
+          name: user.user_metadata?.name ?? "Unknown",
+          user_id: user.id,
+        };
+        setCurrentUser(current);
+        const { data: users } = await supabase.from('users-info').select('id, name, user_id');
+        if (users) setAllUsers(users.filter((u) => u.user_id !== user.id));
       }
-    }
-
-    fetchData()
-  }, [])
+    };
+  
+    fetchData();
+  }, [supabase]);
 
   const toggleUser = (userId: string) => {
     setSelectedUsers((prev) =>
@@ -51,7 +56,7 @@ export default function CreateGroupModal({ onGroupCreated, onClose }: Props) {
     await supabase.from('groups').insert({
       id: groupId,
       name: groupName,
-      created_by: currentUser.id,
+      created_by: currentUser?.id,
     })
 
     // Insert members (including creator)
@@ -60,7 +65,7 @@ export default function CreateGroupModal({ onGroupCreated, onClose }: Props) {
         group_id: groupId,
         user_id: userId,
       })),
-      { group_id: groupId, user_id: currentUser.id },
+      { group_id: groupId, user_id: currentUser?.id },
     ]
 
     await supabase.from('group_members').insert(members)
