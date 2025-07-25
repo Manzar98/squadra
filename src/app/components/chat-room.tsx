@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation'
 import CreateGroupModal from './create-group-modal'
 import type { User as SupabaseAuthUser } from '@supabase/supabase-js'
 
-const supabase = createSupabaseServerClient()   // ✅ moved outside
+const supabase = createSupabaseServerClient()
 
 interface Message {
   id: string
@@ -29,15 +29,15 @@ interface Group {
   id: string
   name: string
 }
+
 interface GroupMember {
   group_id: string
-  groups: Group []
+  groups: Group[]
 }
-
 
 export default function ChatRoom() {
   const router = useRouter()
-  const [messages, setMessages] = useState<Message []>([])
+  const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [user, setUser] = useState<SupabaseAuthUser | null>(null)
   const [receiverId, setReceiverId] = useState('')
@@ -47,59 +47,54 @@ export default function ChatRoom() {
   const [chatType, setChatType] = useState<'dm' | 'group'>('dm')
   const [showCreateGroup, setShowCreateGroup] = useState(false)
 
-  // fetch all users except current
-
   const fetchUsers = useCallback(async (currentUserId: string) => {
-    const { data, error } = await supabase.from('users-info').select('id, name, user_id')
+    const { data, error } = await supabase
+      .from('users-info')
+      .select('id, name, user_id')
       .neq('user_id', currentUserId)
-      .order('name', { ascending: true }) 
-    if (!error && data) setUsers((data as User[]).filter((u) => u.user_id !== currentUserId))
+      .order('name', { ascending: true })
+    if (!error && data) setUsers(data as User[])
   }, [])
 
-  // fetch groups for current user
   const fetchGroups = useCallback(async (currentUserId: string) => {
     const { data, error } = await supabase
       .from('group_members')
       .select('group_id, groups(name, id)')
       .eq('user_id', currentUserId)
-      if (!error && data) {
-        const groups = (data as GroupMember[]).flatMap((gm) => gm.groups)
-        setGroups(groups)
-      }
+    if (!error && data) {
+      const groups = (data as GroupMember[]).flatMap((gm) => gm.groups)
+      setGroups(groups)
+    }
   }, [])
 
-  // fetch DM messages
-  const fetchDM = useCallback(async () => {
-    if (!user || !receiverId) return
-  
+  const fetchDM = useCallback(
+    async (receiverIdParam: string) => {
+      if (!user || !receiverIdParam) return
+      const { data, error } = await supabase
+        .from('messages')
+        .select('*')
+        .in('sender_id', [user.id, receiverIdParam])
+        .in('receiver_id', [user.id, receiverIdParam])
+        .order('created_at', { ascending: true })
+      if (!error && data) setMessages(data as Message[])
+    },
+    [user]
+  )
+
+  const fetchGroupMessages = useCallback(async (groupIdParam: string) => {
+    if (!groupIdParam) return
     const { data, error } = await supabase
       .from('messages')
       .select('*')
-      .in('sender_id', [user.id, receiverId])
-      .in('receiver_id', [user.id, receiverId])
-      .order('created_at', { ascending: true })
-  
-    if (!error && data) setMessages(data as Message[])
-  }, [receiverId, user])
-
-  // fetch group messages
-
-  const fetchGroupMessages = useCallback(async () => {
-    if (!groupId) return
-    const { data, error } = await supabase
-      .from('messages')
-      .select('*')
-      .eq('group_id', groupId)
+      .eq('group_id', groupIdParam)
       .order('created_at', { ascending: true })
     if (!error && data) setMessages(data as Message[])
-  }, [groupId])
+  }, [])
 
-  // mark message as seen
   const markAsSeen = useCallback(async (msgId: string) => {
     await supabase.from('messages').update({ seen: true }).eq('id', msgId)
   }, [])
 
-  // get authenticated user on mount
   useEffect(() => {
     const getUser = async () => {
       const { data: { user }, error } = await supabase.auth.getUser()
@@ -111,51 +106,54 @@ export default function ChatRoom() {
     getUser()
   }, [fetchUsers, fetchGroups, router])
 
-  // listen to new messages + initial fetch
+  // Listen for new messages and group membership changes
   useEffect(() => {
     if (!user) return
     setMessages([])
 
     if (chatType === 'dm' && receiverId) {
-      fetchDM()
+      fetchDM(receiverId)
     } else if (chatType === 'group' && groupId) {
-      fetchGroupMessages()
+      fetchGroupMessages(groupId)
     }
 
-    const channel = supabase
-      .channel('chatroom')
-      .on(
-        'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'messages' },
-        (payload) => {
-          const newMsg = payload.new as Message
-
-          if (chatType === 'dm') {
-            if (
-              (newMsg.sender_id === user.id && newMsg.receiver_id === receiverId) ||
-              (newMsg.sender_id === receiverId && newMsg.receiver_id === user.id)
-            ) {
-              setMessages((prev) => [...prev, newMsg])
-              markAsSeen(newMsg.id)
-            }
-          } else if (chatType === 'group') {
-            if (newMsg.group_id === groupId) {
-              setMessages((prev) => [...prev, newMsg])
-              markAsSeen(newMsg.id)
-            }
+    const messageChannel = supabase
+      .channel('chatroom-messages')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, (payload) => {
+        const newMsg = payload.new as Message
+        if (chatType === 'dm') {
+          if (
+            (newMsg.sender_id === user.id && newMsg.receiver_id === receiverId) ||
+            (newMsg.sender_id === receiverId && newMsg.receiver_id === user.id)
+          ) {
+            setMessages((prev) => [...prev, newMsg])
+            markAsSeen(newMsg.id)
           }
+        } else if (chatType === 'group' && newMsg.group_id === groupId) {
+          setMessages((prev) => [...prev, newMsg])
+          markAsSeen(newMsg.id)
         }
-      )
+      })
+      .subscribe()
+
+    const groupChannel = supabase
+      .channel('chatroom-groups')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'group_members' }, (payload) => {
+        // Only refresh groups if this user is affected
+        if (payload.new.user_id === user.id) {
+          fetchGroups(user.id)
+        }
+      })
       .subscribe()
 
     return () => {
-      supabase.removeChannel(channel)
+      supabase.removeChannel(messageChannel)
+      supabase.removeChannel(groupChannel)
     }
-  }, [user, receiverId, groupId, chatType, fetchDM, fetchGroupMessages, markAsSeen, supabase])
+  }, [user, receiverId, groupId, chatType, fetchDM, fetchGroupMessages, markAsSeen, fetchGroups])
 
   const sendMessage = async () => {
     if (!input.trim() || !user) return
-
     const newMessage = {
       id: uuidv4(),
       content: input,
@@ -164,7 +162,6 @@ export default function ChatRoom() {
       group_id: chatType === 'group' ? groupId : undefined,
       seen: false,
     }
-
     const { error } = await supabase.from('messages').insert(newMessage)
     if (!error) setInput('')
   }
@@ -175,7 +172,7 @@ export default function ChatRoom() {
     const selectedUserId = e.target.value
     setReceiverId(selectedUserId)
     setMessages([])
-    if (selectedUserId) fetchDM()
+    if (selectedUserId) fetchDM(selectedUserId)
     setGroupId('')
     setChatType('dm')
     setShowCreateGroup(false)
@@ -199,11 +196,7 @@ export default function ChatRoom() {
       </div>
 
       {chatType === 'dm' && (
-        <select
-          className="w-full border px-3 py-2 rounded"
-          value={receiverId}
-          onChange={(e) => handleReceiverChange(e)}
-        >
+        <select className="w-full border px-3 py-2 rounded" value={receiverId} onChange={handleReceiverChange}>
           <option value="">Select a user</option>
           {users.map((u) => (
             <option key={u.id} value={u.user_id}>
@@ -242,7 +235,8 @@ export default function ChatRoom() {
             key={msg.id}
             className={`mb-2 text-sm ${msg.sender_id === user.id ? 'text-right text-blue-600' : 'text-left text-gray-700'}`}
           >
-            {msg.content} {msg.seen && msg.sender_id === user.id && <span className="text-xs text-green-500 ml-1">✓</span>}
+            {msg.content}{' '}
+            {msg.seen && msg.sender_id === user.id && <span className="text-xs text-green-500 ml-1">✓</span>}
           </div>
         ))}
       </div>

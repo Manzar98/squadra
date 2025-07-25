@@ -4,9 +4,10 @@ import { useState, useEffect } from "react"
 import { Button } from "../components/ui/button"
 import { Input } from "../components/ui/input"
 import { X, PlusCircle } from "lucide-react"
-import { createSupabaseClientWithToken } from "../../lib/supabase/server"
+import { createSupabaseClientWithToken } from "@/lib/supabase/server"
 import { v4 as uuidv4 } from "uuid"
 import { SupabaseClient } from "@supabase/supabase-js";
+import { runWithSpan } from "@/lib/api-client"
 
 interface InviteField {
   id: string
@@ -76,7 +77,7 @@ export function InviteModal({ isOpen, onClose, onInvitesSent, authenticatedUser 
     };
 
     getOrCreateReferralCode();
-  }, [authenticatedUser?.id, authenticatedUser?.referral_code, supabase]); 
+  }, [authenticatedUser?.id, authenticatedUser?.referral_code, supabase]);
 
   const addAnotherField = () => {
     setInviteFields([...inviteFields, { id: Date.now().toString(), email: "", name: "" }])
@@ -86,104 +87,114 @@ export function InviteModal({ isOpen, onClose, onInvitesSent, authenticatedUser 
     setInviteFields(inviteFields.map((item) => (item.id === id ? { ...item, [field]: value } : item)))
   }
 
+
   const handleSend = async () => {
-    let hasError = false
-    const newEmailErrors: Record<string, boolean> = {}
+    await runWithSpan("Send Invitations", async () => {
+      let hasError = false;
+      const newEmailErrors: Record<string, boolean> = {};
 
-    inviteFields.forEach((field) => {
-      if (!field.email) {
-        newEmailErrors[field.id] = true
-        hasError = true
-      } else {
-        newEmailErrors[field.id] = false
-      }
-    })
+      inviteFields.forEach((field) => {
+        if (!field.email) {
+          newEmailErrors[field.id] = true;
+          hasError = true;
+        } else {
+          newEmailErrors[field.id] = false;
+        }
+      });
 
-    setEmailErrors(newEmailErrors)
-    if (hasError) return
+      setEmailErrors(newEmailErrors);
+      if (hasError) return;
 
-    const validInvites = inviteFields.filter((field) => field.email)
+      const validInvites = inviteFields.filter((field) => field.email);
 
-    let usersToUpsert = validInvites.map((field) => ({
-      email: field.email,
-      name: field.name || null,
-      referred_by: referralCode,
-    }))
+      let usersToUpsert = validInvites.map((field) => ({
+        email: field.email,
+        name: field.name || null,
+        referred_by: referralCode,
+      }));
 
-    let insertedUsers: { id: string; email: string }[] = []
-    if (usersToUpsert.length > 0 && supabase) {
-      // Filter out existing users
-      const { data: existingUsers, error } = await supabase
-        .from("users-info")
-        .select("email")
-        .in("email", usersToUpsert.map(user => user.email))
-
-      if (error) {
-        console.error("Error checking existing users:", error)
-        return
-      }
-
-      if (existingUsers?.length) {
-        const existingEmails = new Set(existingUsers.map(u => u.email))
-        usersToUpsert = usersToUpsert.filter(user => !existingEmails.has(user.email))
-      }
-
-      if (usersToUpsert.length > 0) {
-        // Insert and get IDs
-        const { data, error: insertError } = await supabase
+      let insertedUsers: { id: string; email: string }[] = [];
+      if (usersToUpsert.length > 0 && supabase) {
+        // Filter out existing users
+        const { data: existingUsers, error } = await supabase
           .from("users-info")
-          .insert(usersToUpsert)
-          .select("id,email")
+          .select("email")
+          .in("email", usersToUpsert.map((user) => user.email));
 
-        if (insertError) console.error("Error inserting invited users:", insertError)
-        else insertedUsers = data || []
+        if (error) throw error;
+
+        if (existingUsers?.length) {
+          const existingEmails = new Set(existingUsers.map((u) => u.email));
+          usersToUpsert = usersToUpsert.filter((user) => !existingEmails.has(user.email));
+        }
+
+        if (usersToUpsert.length > 0) {
+          // Insert and get IDs
+          const { data, error: insertError } = await supabase
+            .from("users-info")
+            .insert(usersToUpsert)
+            .select("id,email");
+
+          if (insertError) throw insertError;
+          insertedUsers = data || [];
+        }
       }
-    }
 
-    // Map temporary IDs to actual database IDs
-    const idMap = new Map(insertedUsers.map(u => [u.email, u.id]))
-    const newMembers: TeamMember[] = validInvites.map((field) => ({
-      id: idMap.get(field.email) ?? field.id, // replaced with new ID if inserted
-      name: field.name,
-      email: field.email,
-    }))
+      // Map temporary IDs to actual database IDs
+      const idMap = new Map(insertedUsers.map((u) => [u.email, u.id]));
+      const newMembers: TeamMember[] = validInvites.map((field) => ({
+        id: idMap.get(field.email) ?? field.id,
+        name: field.name,
+        email: field.email,
+      }));
 
-    if (newMembers.length > 0) onInvitesSent(newMembers)
+      if (newMembers.length > 0) onInvitesSent(newMembers);
 
-    // Send invitation links
-    for (const field of validInvites) {
-      if (field.email && referralCode) {
-        const inviteLink = `${window.location.origin}/signup?ref=${referralCode}`
-        console.log(`Send this invite link to ${field.email}: ${inviteLink}`)
-        await sendInvitation(field.email, field.name)
+      // Send invitations to valid emails
+      await sendInvitationBatch(
+        validInvites.map(f => ({ email: f.email, name: f.name })),
+        referralCode
+      );
+
+      setInviteFields([{ id: Date.now().toString(), email: "", name: "" }]);
+      onClose();
+    }, { inviteCount: inviteFields.length, referralCode });
+  };
+
+
+
+  const sendInvitationBatch = async (
+    invites: { email: string; name: string }[],
+    referralCode: string | null
+  ) => {
+    await runWithSpan("Send Invitation Batch", async () => {
+      for (const invite of invites) {
+        await runWithSpan("Send Invitation Email", async () => {
+          const link = referralCode
+            ? `${window.location.origin}/signup?ref=${referralCode}`
+            : `${window.location.origin}/signup`;
+          
+          await fetch("/api/sendEmail", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              email: invite.email,
+              subject: "You're invited to join Squadra",
+              body: `
+                Hi ${invite.name || "there"},
+                <br /><br />
+                You've been invited to join Squadra! Click below:
+                <br />
+                <a href="${link}" target="_blank">Join Squadra</a>
+              `,
+            }),
+          });
+        }, { email: invite.email });
       }
-    }
+    }, { totalInvites: invites.length });
+  };
+  
 
-    setInviteFields([{ id: Date.now().toString(), email: "", name: "" }])
-    onClose()
-  }
-
-  const sendInvitation = async (email: string, name: string) => {
-    try {
-      await fetch("/api/sendEmail", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email,
-          subject: "You're invited to join Squadra",
-          body: `
-            Hi ${name || "there"},
-            <br /><br />
-            You've been invited to join Squadra! Click below:
-            <br />
-            <a href="${window.location.origin}/signup?ref=${referralCode}" target="_blank">Join Squadra</a>
-          `,
-        }),
-      })
-    } catch (err) {
-      console.error("Failed to send invitation email:", err)
-    }
-  }
 
   if (!isOpen) return null
 
@@ -222,8 +233,8 @@ export function InviteModal({ isOpen, onClose, onInvitesSent, authenticatedUser 
                 <div className="h-5 pt-1">
                   <p
                     className={`text-[12px] leading-[1.33] tracking-[0.4px] font-heading text-left transition-opacity duration-200 ${emailErrors && emailErrors[field.id]
-                        ? "text-red-500 opacity-100"
-                        : "text-transparent opacity-0"
+                      ? "text-red-500 opacity-100"
+                      : "text-transparent opacity-0"
                       }`}
                   >
                     Email is required

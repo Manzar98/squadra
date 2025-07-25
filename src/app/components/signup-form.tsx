@@ -11,6 +11,7 @@ import { Input } from "../components/ui/input";
 import { Checkbox } from "../components/ui/checkbox";
 import { CustomDropdown, DropdownItem } from "./drop-down";
 import { supabase } from "@/lib/supabase/client";
+import { runWithSpan } from "@/lib/api-client";
 
 interface LabelProps {
   htmlFor: string;
@@ -112,107 +113,107 @@ export default function SquadraForm() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const { email, password, name, teamName, teamRole, emailConsent } = formData;
-
-    const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-      email,
-      password,
-    });
-
-    if (signUpError) {
-      Swal.fire({
-        icon: "error",
-        title: "Signup Failed",
-        text:
-          signUpError.message === "User already registered"
-            ? "An account with this email already exists. Please log in instead."
-            : signUpError.message,
-      });
-      return;
-    }
-
-    const userId = signUpData.user?.id;
-    if (!userId) {
-      Swal.fire({
-        icon: "error",
-        title: "Signup Error",
-        text: "User ID not returned. Please try again.",
-      });
-      return;
-    }
-
-    const { data: existingUserInfo } = await supabase
-      .from("users-info")
-      .select("id, referral_code")
-      .eq("email", email)
-      .maybeSingle();
-
-    let referralCode = existingUserInfo?.referral_code || "";
-
-    if (!referralCode) {
-      let isUnique = false;
-      while (!isUnique) {
-        const candidate = Math.random().toString(36).substring(2, 8).toUpperCase();
-        const { data } = await supabase
-          .from("users-info")
-          .select("id")
-          .eq("referral_code", candidate)
-          .maybeSingle();
-
-        if (!data) {
-          referralCode = candidate;
-          isUnique = true;
+  
+    try {
+      await runWithSpan("User Signup", async () => {
+        // 1. Sign Up User
+        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({ email, password });
+  
+        if (signUpError) {
+          Swal.fire({
+            icon: "error",
+            title: "Signup Failed",
+            text:
+              signUpError.message === "User already registered"
+                ? "An account with this email already exists. Please log in instead."
+                : signUpError.message,
+          });
+          throw signUpError;
         }
-      }
-    }
-
-    if (existingUserInfo) {
-      const { error: updateError } = await supabase
-        .from("users-info")
-        .update({
-          user_id: userId,
-          name,
-          team_name: teamName,
-          team_role: teamRole,
-          email_consent: emailConsent,
-          referral_code: referralCode,
-        })
-        .eq("id", existingUserInfo.id);
-
-      if (updateError) {
+  
+        const userId = signUpData.user?.id;
+        if (!userId) {
+          Swal.fire({
+            icon: "error",
+            title: "Signup Error",
+            text: "User ID not returned. Please try again.",
+          });
+          throw new Error("User ID not returned");
+        }
+  
+        // 2. Check existing user info
+        const { data: existingUserInfo } = await supabase
+          .from("users-info")
+          .select("id, referral_code")
+          .eq("email", email)
+          .maybeSingle();
+  
+        let referralCode = existingUserInfo?.referral_code || "";
+  
+        // 3. Generate referral code if not present
+        if (!referralCode) {
+          let isUnique = false;
+          while (!isUnique) {
+            const candidate = Math.random().toString(36).substring(2, 8).toUpperCase();
+            const { data } = await supabase
+              .from("users-info")
+              .select("id")
+              .eq("referral_code", candidate)
+              .maybeSingle();
+            if (!data) {
+              referralCode = candidate;
+              isUnique = true;
+            }
+          }
+        }
+  
+        // 4. Update or insert
+        if (existingUserInfo) {
+          const { error: updateError } = await supabase
+            .from("users-info")
+            .update({
+              user_id: userId,
+              name,
+              team_name: teamName,
+              team_role: teamRole,
+              email_consent: emailConsent,
+              referral_code: referralCode,
+            })
+            .eq("id", existingUserInfo.id);
+  
+          if (updateError) {
+            Swal.fire({ icon: "error", title: "Update Failed", text: updateError.message });
+            throw updateError;
+          }
+        } else {
+          const { error: insertError } = await supabase.from("users-info").insert({
+            user_id: userId,
+            email,
+            name,
+            team_name: teamName,
+            team_role: teamRole,
+            email_consent: emailConsent,
+            referral_code: referralCode,
+            referred_by: refCode || null,
+          });
+  
+          if (insertError) {
+            Swal.fire({ icon: "error", title: "Insert Failed", text: insertError.message });
+            throw insertError;
+          }
+        }
+  
+        // 5. Show success message
         Swal.fire({
-          icon: "error",
-          title: "Update Failed",
-          text: updateError.message,
+          icon: "success",
+          title: "Signup Successful!",
+          text: "Please check your email to confirm your account.",
         });
-        return;
-      }
-    } else {
-      const { error: insertError } = await supabase.from("users-info").insert({
-        user_id: userId,
-        email,
-        name,
-        team_name: teamName,
-        team_role: teamRole,
-        email_consent: emailConsent,
-        referral_code: referralCode,
-        referred_by: refCode || null,
-      });
-
-      if (insertError) {
-        Swal.fire({
-          icon: "error",
-          title: "Insert Failed",
-          text: insertError.message,
-        });
-        return;
-      }
+      }, { email, teamName, teamRole });
+    } catch (error) {
+      // Already reported to Sentry by runWithSpan
+      console.error("Signup failed", error);
     }
-
-    Swal.fire({
-      icon: "success",
-      title: "Signup Successful!",
-      text: "Please check your email to confirm your account.",
-    });
   };
   
   

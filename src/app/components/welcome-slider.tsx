@@ -9,6 +9,7 @@ import { TextArea } from "./ui/textarea"
 import Image from "next/image"
 import { selectSkills } from '../../store'
 import { supabase } from "../../lib/supabase/client"
+import { runWithSpan } from "../../lib/api-client"
 
 export interface TeamMember {
   id: string
@@ -37,6 +38,7 @@ export function WelcomeSlider() {
   )
   const [selectedEmoji, setSelectedEmoji] = useState("😎")
   const skills = useSelector(selectSkills)
+
   
   const handleInvitesSent = (newMembers: TeamMember[]) => {
     setTeamMembers(prevMembers => [...prevMembers, ...newMembers]);
@@ -44,26 +46,34 @@ export function WelcomeSlider() {
 
   useEffect(() => {
     const fetchTeamMembers = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (user) {
+      await runWithSpan("Fetch Team Members", async () => {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) return []
+
         const { data: userInfo } = await supabase
           .from('users-info')
           .select('referral_code')
           .eq('user_id', user.id)
           .single()
-          setAuthenticatedUser({id: user.id, referral_code: userInfo?.referral_code})
-        
-        if (userInfo) {
-          const { data: members } = await supabase
-            .from('users-info')
-            .select('id:user_id, name, email, id')
-            .eq('referred_by', userInfo.referral_code)
-          
-          if (members) {
-            setTeamMembers(members as TeamMember[])
-          }
+
+        setAuthenticatedUser({ id: user.id, referral_code: userInfo?.referral_code })
+
+        const { data: members } = await supabase
+          .from('users-info')
+          .select('id:user_id, name, email, id')
+          .eq('referred_by', userInfo?.referral_code)
+
+        return members as TeamMember[]
+      }, { userId: supabase.auth.getUser().then(user => user.data.user?.id) })
+      .then(members => {
+        if (members) {
+          setTeamMembers(members as TeamMember[])
         }
-      }
+      })
+      .catch(error => {
+        console.error("Error fetching team members:", error)
+      });
+      
     }
 
     fetchTeamMembers()
@@ -113,10 +123,10 @@ export function WelcomeSlider() {
 
   const handleSubmit = () => {
     const insertSkills = async () => {
-      try {
+      await runWithSpan("Insert User Skills", async () => {
         for (const skill of selectedSkills) {
           const { error } = await supabase
-            .from('users-skills')
+            .from("users-skills")
             .insert([
               {
                 user_info_id: selectedMember?.id,
@@ -125,20 +135,17 @@ export function WelcomeSlider() {
                 emoji: selectedEmoji,
               },
             ])
-            .single()
-          if (error) throw error
+            .single();
+  
+          if (error) throw error;
         }
-        setShowSuccessScreen(true)
-      } catch (error: unknown) {
-        if (error instanceof Error) {
-          console.error('Failed to insert skills:', error.message)
-        } else {
-          console.error('Failed to insert skills:', error)
-        }
-      }
-    }
-    insertSkills()
-  }
+  
+        setShowSuccessScreen(true);
+      }, { memberId: selectedMember?.id, skillsCount: selectedSkills.length });
+    };
+  
+    insertSkills();
+  };
   
 
   const renderPaginationDots = () => (

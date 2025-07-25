@@ -58,16 +58,16 @@ export default function CaptureAMoment() {
 
     const handleSubmit = () => {
         // Validate form data
-        // if (!formData.squadmate || !formData.flowZone || !formData.reaction) {
-        //   Swal.fire({
-        //     title: "Missing Information",
-        //     text: "Please fill in all required fields before submitting.",
-        //     icon: "warning",
-        //     confirmButtonText: "OK",
-        //     confirmButtonColor: "#3FD24D",
-        //   })
-        //   return
-        // }
+        if (!formData.squadmate || !formData.flowZone || !formData.reaction) {
+          Swal.fire({
+            title: "Missing Information",
+            text: "Please fill in all required fields before submitting.",
+            icon: "warning",
+            confirmButtonText: "OK",
+            confirmButtonColor: "#3FD24D",
+          })
+          return
+        }
     
         // Show success alert
         Swal.fire({

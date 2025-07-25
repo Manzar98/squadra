@@ -6,9 +6,10 @@ import { Button } from "../../components/ui/button"
 import { Input } from "../../components/ui/input"
 import Image from "next/image"
 import { createSupabaseServerClient } from '../../../lib/supabase/client'
+import { runWithSpan } from "@/lib/api-client"
 const supabase = createSupabaseServerClient();
 export default function LoginPage() {
-  
+
   const [showPassword, setShowPassword] = useState(false)
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -19,45 +20,45 @@ export default function LoginPage() {
 
 
   const handleLogin = async (e: { preventDefault: () => void }) => {
+    // throw new Error("Forced login error for Sentry test");
     e.preventDefault();
     const isEmailEmpty = email.trim() === "";
     const isPasswordEmpty = password.trim() === "";
-  
+
     setEmailError(isEmailEmpty);
     setPasswordError(isPasswordEmpty);
-  
+
     if (isEmailEmpty || isPasswordEmpty) return;
-  
+
     setError(null);
-  
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-  
-  
-    if (error) {
-      setError(error.message);
-    } else {
-      const token = data.session?.access_token;
-      if (token) {
-        sessionStorage.setItem("supabaseToken", token);
-      }
+
+    try {
+      await runWithSpan("User Login", async () => {
+        const { data, error: loginError } = await supabase.auth.signInWithPassword({ email, password });
+        if (loginError) {
+          setError(loginError.message);
+          throw loginError;
+        }
+        const token = data.session?.access_token;
+        if (token) sessionStorage.setItem("supabaseToken", token);
+      }, { email });
   
       window.location.href = "/dashboard";
+    } catch {
+      setError("Unexpected error occurred");
     }
-  };
-  
 
-  
-
-  const redirectToGoogleAuth = () => {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    // const redirectUrl = `${window.location.origin}/auth/callback`; // This is your callback route
-    const googleAuthUrl = `${supabaseUrl}/auth/v1/authorize?provider=google&redirect_to=http://localhost:3000/dashboard`;
-    // Redirect user to Google OAuth
-    window.location.href = googleAuthUrl;
   };
+
+  const redirectToGoogleAuth = async () => {
+    await runWithSpan("Redirect to Google Auth", async () => {
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+      if (!supabaseUrl) throw new Error("Missing NEXT_PUBLIC_SUPABASE_URL");
+      const googleAuthUrl = `${supabaseUrl}/auth/v1/authorize?provider=google&redirect_to=${window.location.origin}/dashboard`;
+      window.location.href = googleAuthUrl;
+    }, { action: "redirect_to_google_auth" });
+  };
+
 
   return (
     <div className="min-h-screen flex">
@@ -155,7 +156,7 @@ export default function LoginPage() {
                 >
                   SIGN IN
                 </Button>
-                
+
               </div>
               {error && <p>{error}</p>}
             </form>
@@ -169,10 +170,10 @@ export default function LoginPage() {
                   {/* Google Icon from Lucide */}
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
                     <g>
-                      <path d="M21.805 10.023h-9.765v3.977h5.617c-.242 1.242-1.484 3.648-5.617 3.648-3.375 0-6.125-2.789-6.125-6.148 0-3.359 2.75-6.148 6.125-6.148 1.922 0 3.211.82 3.953 1.523l2.703-2.633c-1.719-1.594-3.938-2.57-6.656-2.57-5.523 0-10 4.477-10 10s4.477 10 10 10c5.75 0 9.547-4.031 9.547-9.719 0-.656-.07-1.156-.156-1.629z" fill="#4285F4"/>
-                      <path d="M3.153 7.345l3.281 2.406c.891-1.781 2.578-3.008 4.606-3.008 1.125 0 2.156.391 2.953 1.031l2.703-2.633c-1.719-1.594-3.938-2.57-6.656-2.57-3.625 0-6.703 2.07-8.219 5.074z" fill="#34A853"/>
-                      <path d="M12.04 22c2.672 0 4.922-.883 6.563-2.406l-3.047-2.492c-.844.57-1.922.914-3.516.914-2.859 0-5.289-1.93-6.156-4.523l-3.242 2.5c1.5 3.008 4.672 5.007 8.398 5.007z" fill="#FBBC05"/>
-                      <path d="M21.805 10.023h-9.765v3.977h5.617c-.242 1.242-1.484 3.648-5.617 3.648-3.375 0-6.125-2.789-6.125-6.148 0-.547.07-1.078.172-1.578l-3.281-2.406c-.531 1.07-.844 2.273-.844 3.584 0 5.523 4.477 10 10 10 5.75 0 9.547-4.031 9.547-9.719 0-.656-.07-1.156-.156-1.629z" fill="#EA4335"/>
+                      <path d="M21.805 10.023h-9.765v3.977h5.617c-.242 1.242-1.484 3.648-5.617 3.648-3.375 0-6.125-2.789-6.125-6.148 0-3.359 2.75-6.148 6.125-6.148 1.922 0 3.211.82 3.953 1.523l2.703-2.633c-1.719-1.594-3.938-2.57-6.656-2.57-5.523 0-10 4.477-10 10s4.477 10 10 10c5.75 0 9.547-4.031 9.547-9.719 0-.656-.07-1.156-.156-1.629z" fill="#4285F4" />
+                      <path d="M3.153 7.345l3.281 2.406c.891-1.781 2.578-3.008 4.606-3.008 1.125 0 2.156.391 2.953 1.031l2.703-2.633c-1.719-1.594-3.938-2.57-6.656-2.57-3.625 0-6.703 2.07-8.219 5.074z" fill="#34A853" />
+                      <path d="M12.04 22c2.672 0 4.922-.883 6.563-2.406l-3.047-2.492c-.844.57-1.922.914-3.516.914-2.859 0-5.289-1.93-6.156-4.523l-3.242 2.5c1.5 3.008 4.672 5.007 8.398 5.007z" fill="#FBBC05" />
+                      <path d="M21.805 10.023h-9.765v3.977h5.617c-.242 1.242-1.484 3.648-5.617 3.648-3.375 0-6.125-2.789-6.125-6.148 0-.547.07-1.078.172-1.578l-3.281-2.406c-.531 1.07-.844 2.273-.844 3.584 0 5.523 4.477 10 10 10 5.75 0 9.547-4.031 9.547-9.719 0-.656-.07-1.156-.156-1.629z" fill="#EA4335" />
                     </g>
                   </svg>
                 </span>
@@ -196,20 +197,17 @@ export default function LoginPage() {
 
         {/* Footer Links */}
         <div className="px-16 pb-8">
-  <div className="max-w-[400px] mx-auto">
-    <div className="flex flex-wrap justify-center lg:justify-start gap-6 text-sm font-body text-center lg:text-left">
-      <button className="text-[#00A600] lg:text-[16px] font-semibold hover:underline transition-all">
-        Privacy & Terms
-      </button>
-      <button className="text-[#00A600] lg:text-[16px] font-semibold hover:underline transition-all">
-        Help? Contact Support
-      </button>
-    </div>
-  </div>
-</div>
-
-
-
+          <div className="max-w-[400px] mx-auto">
+            <div className="flex flex-wrap justify-center lg:justify-start gap-6 text-sm font-body text-center lg:text-left">
+              <button className="text-[#00A600] lg:text-[16px] font-semibold hover:underline transition-all">
+                Privacy & Terms
+              </button>
+              <button className="text-[#00A600] lg:text-[16px] font-semibold hover:underline transition-all">
+                Help? Contact Support
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   )
