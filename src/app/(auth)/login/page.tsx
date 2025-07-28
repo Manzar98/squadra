@@ -7,9 +7,10 @@ import { Input } from "../../components/ui/input"
 import Image from "next/image"
 import { createSupabaseServerClient } from '../../../lib/supabase/client'
 import { runWithSpan } from "@/lib/api-client"
+import { useRouter } from 'next/navigation';
 const supabase = createSupabaseServerClient();
 export default function LoginPage() {
-
+  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false)
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -43,7 +44,7 @@ export default function LoginPage() {
         if (token) sessionStorage.setItem("supabaseToken", token);
       }, { email });
   
-      window.location.href = "/dashboard";
+      router.push('/dashboard');
     } catch {
       setError("Unexpected error occurred");
     }
@@ -100,6 +101,7 @@ export default function LoginPage() {
               <div className={emailError ? "mb-[0.6rem]" : "mb-[1.88rem]"}>
                 <Input
                   type="email"
+                  data-testid="email-input"
                   placeholder="Email address"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -120,6 +122,7 @@ export default function LoginPage() {
                   <Input
                     type={showPassword ? "text" : "password"}
                     placeholder="Password"
+                    data-testid="password-input"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="lg:w-[82.5%] pl-4 pr-11 py-3 font-body"
@@ -152,6 +155,7 @@ export default function LoginPage() {
                 <Button
                   type="button"
                   onClick={handleLogin}
+                  data-testid="login-button"
                   className="w-full lg:w-[150px] h-[42px] rounded-full text-black text-[14px] font-[700] tracking-[0.75px] font-heading hover:bg-[#00a41c] transition-all"
                 >
                   SIGN IN

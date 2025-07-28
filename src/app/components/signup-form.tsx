@@ -49,7 +49,7 @@ export default function SquadraForm() {
 
   const [formData, setFormData] = useState<FormData>({
     name: "Melissa Duck",
-    email: "melissa.duck@looneytunes.com",
+    email: "",
     password: "",
     teamName: "",
     teamRole: "",
@@ -114,6 +114,18 @@ export default function SquadraForm() {
     e.preventDefault();
     const { email, password, name, teamName, teamRole, emailConsent } = formData;
   
+    async function generateUniqueReferralCode() {
+      while (true) {
+        const candidate = Math.random().toString(36).substring(2, 8).toUpperCase();
+        const { data, error } = await supabase
+          .from("users-info")
+          .select("id")
+          .eq("referral_code", candidate)
+          .maybeSingle();
+        if (!error && !data) return candidate;
+      }
+    }
+  
     try {
       await runWithSpan("User Signup", async () => {
         // 1. Sign Up User
@@ -152,19 +164,7 @@ export default function SquadraForm() {
   
         // 3. Generate referral code if not present
         if (!referralCode) {
-          let isUnique = false;
-          while (!isUnique) {
-            const candidate = Math.random().toString(36).substring(2, 8).toUpperCase();
-            const { data } = await supabase
-              .from("users-info")
-              .select("id")
-              .eq("referral_code", candidate)
-              .maybeSingle();
-            if (!data) {
-              referralCode = candidate;
-              isUnique = true;
-            }
-          }
+          referralCode = await generateUniqueReferralCode();
         }
   
         // 4. Update or insert
@@ -186,7 +186,7 @@ export default function SquadraForm() {
             throw updateError;
           }
         } else {
-          const { error: insertError } = await supabase.from("users-info").insert({
+          const insertResult = await supabase.from("users-info").insert({
             user_id: userId,
             email,
             name,
@@ -197,9 +197,28 @@ export default function SquadraForm() {
             referred_by: refCode || null,
           });
   
-          if (insertError) {
-            Swal.fire({ icon: "error", title: "Insert Failed", text: insertError.message });
-            throw insertError;
+          if (insertResult.error) {
+            // Handle duplicate referral code collision
+            if (insertResult.error.message.includes("duplicate key value violates unique constraint")) {
+              referralCode = await generateUniqueReferralCode();
+              const retryInsert = await supabase.from("users-info").insert({
+                user_id: userId,
+                email,
+                name,
+                team_name: teamName,
+                team_role: teamRole,
+                email_consent: emailConsent,
+                referral_code: referralCode,
+                referred_by: refCode || null,
+              });
+              if (retryInsert.error) {
+                Swal.fire({ icon: "error", title: "Insert Failed", text: retryInsert.error.message });
+                throw retryInsert.error;
+              }
+            } else {
+              Swal.fire({ icon: "error", title: "Insert Failed", text: insertResult.error.message });
+              throw insertResult.error;
+            }
           }
         }
   
@@ -211,10 +230,10 @@ export default function SquadraForm() {
         });
       }, { email, teamName, teamRole });
     } catch (error) {
-      // Already reported to Sentry by runWithSpan
       console.error("Signup failed", error);
     }
   };
+  
   
   
     return (
@@ -246,6 +265,7 @@ export default function SquadraForm() {
                         <Input
                             id="name"
                             type="text"
+                            data-testid="name-input"
                             value={formData.name}
                             onChange={(e) => handleInputChange("name", e.target.value)}
                             className="w-full lg-h-[46px] px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
@@ -263,6 +283,7 @@ export default function SquadraForm() {
                                 id="email"
                                 type="email"
                                 value={formData.email}
+                                data-testid="email-input"
                                 onChange={(e) => handleInputChange("email", e.target.value)}
                                 className={`w-full px-3 py-2 pr-10 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent ${isEmailValid ? "border-green-500" : "border-gray-300"
                                     }`}
@@ -286,6 +307,7 @@ export default function SquadraForm() {
                                 id="password"
                                 type={showPassword ? "text" : "password"}
                                 placeholder="6 characters or more"
+                                data-testid="password-input"
                                 value={formData.password}
                                 onChange={(e) => handleInputChange("password", e.target.value)}
                                 className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
@@ -313,6 +335,7 @@ export default function SquadraForm() {
                             type="text"
                             placeholder="Your company name on Squadra"
                             value={formData.teamName}
+                            data-testid="teamName-input"
                             onChange={(e) => handleInputChange("teamName", e.target.value)}
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                         />
@@ -327,7 +350,7 @@ export default function SquadraForm() {
                         <CustomDropdown
                             align="left"
                             trigger={
-                                <div className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent cursor-pointer bg-white flex items-center justify-between">
+                                <div data-testid="role-input" className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent cursor-pointer bg-white flex items-center justify-between">
                                     <span className={formData.teamRole ? "text-gray-900" : "text-gray-500"}>
                                         {formData.teamRole || "Select your role"}
                                     </span>
@@ -352,6 +375,7 @@ export default function SquadraForm() {
                     {/* Submit Button */}
                     <Button
                         type="submit"
+                        data-testid="signup-button"
                         className="w-full bg-green-500 hover:bg-green-600 text-black font-bold text-sm py-3 px-4 rounded-full transition-colors duration-200 font-heading"
                     >
                         SUBMIT

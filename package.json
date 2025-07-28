@@ -6,14 +6,15 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "cypress": "cypress open --config-file cypress.config.ts",
+    "cypress:run": "cypress run --config-file cypress.config.ts"
   },
   "dependencies": {
     "@getbrevo/brevo": "^2.5.0",
     "@radix-ui/react-avatar": "^1.1.10",
     "@reduxjs/toolkit": "^2.8.2",
     "@sentry/nextjs": "^9.41.0",
-    "@supabase/supabase-js": "^2.51.0",
     "@tailwindcss/postcss": "^2.0.0",
     "@vercel/analytics": "^1.5.0",
     "@vercel/speed-insights": "^1.2.0",
@@ -33,12 +34,15 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "@supabase/supabase-js": "^2.52.1",
     "@tailwindcss/postcss": "^4.1.11",
-    "@types/node": "^20",
+    "@types/node": "^20.19.9",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "cypress": "^14.5.2",
     "eslint": "^9",
     "eslint-config-next": "15.3.4",
+    "pg": "^8.16.3",
     "tailwindcss": "^4",
     "typescript": "^5"
   }
