@@ -54,12 +54,14 @@ export default function LoginPage() {
   const redirectToGoogleAuth = async () => {
     await runWithSpan("Redirect to Google Auth", async () => {
       const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-      const redirectBaseUrl = process.env.NEXT_PUBLIC_BASE_URL || window.location.origin;
-      if (!supabaseUrl) throw new Error("Missing NEXT_PUBLIC_SUPABASE_URL");
+      const redirectBaseUrl = process.env.NEXT_PUBLIC_REDIRECT_URL; 
+      if (!supabaseUrl || !redirectBaseUrl) throw new Error("Missing env vars");
+  
       const googleAuthUrl = `${supabaseUrl}/auth/v1/authorize?provider=google&redirect_to=${redirectBaseUrl}/dashboard`;
       window.location.href = googleAuthUrl;
     }, { action: "redirect_to_google_auth" });
   };
+  
 
 
   return (
