@@ -8,7 +8,7 @@ import { InviteModal } from "./invite-modal"
 import { TextArea } from "./ui/textarea"
 import Image from "next/image"
 import { selectSkills } from '../../store'
-import { supabase } from "../../lib/supabase/client"
+import { supabase } from "../../lib/supabase/auth/client"
 import { runWithSpan } from "../../lib/api-client"
 
 export interface TeamMember {

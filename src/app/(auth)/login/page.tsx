@@ -3,13 +3,13 @@
 import { useState } from "react"
 import { Button } from "../../components/ui/button"
 import Image from "next/image"
-import { createSupabaseServerClient } from "../../../lib/supabase/client"
+import { createClient } from "../../../lib/supabase/auth/client"
 import { runWithSpan } from "@/lib/api-client"
 import { useRouter } from "next/navigation"
 import InputField from "../../components/ui/input-field"
 import ForgotPasswordModal from '../../components/forgot-password'
 
-const supabase = createSupabaseServerClient()
+const supabase = createClient()
 
 export default function LoginPage() {
   const router = useRouter()

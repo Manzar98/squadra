@@ -10,7 +10,7 @@ import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Checkbox } from "../components/ui/checkbox";
 import { CustomDropdown, DropdownItem } from "./drop-down";
-import { supabase } from "@/lib/supabase/client";
+import { supabase } from "@/lib/supabase/auth/client";
 import { runWithSpan } from "@/lib/api-client";
 
 interface LabelProps {

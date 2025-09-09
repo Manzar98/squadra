@@ -16,6 +16,7 @@
     "@radix-ui/react-avatar": "^1.1.10",
     "@reduxjs/toolkit": "^2.8.2",
     "@sentry/nextjs": "^9.41.0",
+    "@supabase/ssr": "^0.7.0",
     "@tailwindcss/postcss": "^2.0.0",
     "@vercel/analytics": "^1.5.0",
     "@vercel/speed-insights": "^1.2.0",

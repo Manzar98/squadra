@@ -1,6 +1,6 @@
 // app/api/upload/route.ts
 import { NextResponse } from 'next/server'
-import { createSupabaseClientWithToken } from '../../../lib/supabase/server'
+import { createClient } from '../../../lib/supabase/auth/server'
 
 export async function POST(request: Request) {
   const authHeader = request.headers.get('authorization')
@@ -10,7 +10,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const supabase = createSupabaseClientWithToken(token)
+  const supabase = await createClient();
 
   const {
     data: { user },

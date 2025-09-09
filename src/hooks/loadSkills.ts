@@ -3,11 +3,11 @@
 import { useEffect, useCallback } from 'react'
 import { useDispatch } from 'react-redux'
 import { setSkills, AppDispatch } from '../store'
-import { createSupabaseServerClient } from '../lib/supabase/client'
+import { createClient } from '../lib/supabase/auth/client'
 import { runWithSpan } from '@/lib/api-client'
 
 export const useLoadSkills = () => {
-  const supabase = createSupabaseServerClient()
+  const supabase = createClient()
   const dispatch = useDispatch<AppDispatch>()
 
   const fetchSkills = useCallback(async () => {

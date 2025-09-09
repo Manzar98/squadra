@@ -4,6 +4,7 @@ import { useState } from "react"
 import Modal from "./ui/modal"
 import { Button } from "./ui/button"
 import InputField from "./ui/input-field"
+import { forgotPasswordAction } from "@/lib/supabase/auth"
 
 interface ForgotPasswordModalProps {
     isOpen: boolean
@@ -20,10 +21,16 @@ export default function ForgotPasswordModal({ isOpen, onClose }: ForgotPasswordM
           setError("Email is required")
           return
         }
-    
         setError("")
         try {
+        
+         const result = await forgotPasswordAction({ email: email.trim() })
           // Simulate password reset - replace with actual implementation
+          if(result.message){
+            setError(result.message || "Failed to send reset link. Try again.")
+            return
+          }
+
           console.log("Password reset for:", email)
           setIsSuccess(true)
         } catch {

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { createSupabaseServerClient } from "../../../lib/supabase/client";
+import { createClient } from "../../../lib/supabase/auth/client";
 import { withErrorHandler } from "../../../lib/api-handler";
 
 export const GET = withErrorHandler(async (request: Request) => {
@@ -12,7 +12,7 @@ export const GET = withErrorHandler(async (request: Request) => {
   }
 
   if (code) {
-    const supabase = await createSupabaseServerClient();
+    const supabase = await createClient();
     const { error } = await supabase.auth.exchangeCodeForSession(code);
 
     if (!error) {

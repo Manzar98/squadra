@@ -13,7 +13,7 @@ async function sendEmailHandler(req: Request) {
   const html = body.body;
 
   const data = await resend.emails.send({
-    from: "Team Squadra <manzar.noman@deltacrontech.com>",
+    from: `Team Squadra <${process.env.NEXT_PUBLIC_EMAIL}>`,
     to,
     subject,
     html,

@@ -1,13 +1,13 @@
 'use client'
 
 import { useEffect, useState, useCallback } from 'react'
-import { createSupabaseServerClient } from '../../lib/supabase/client'
+import { createClient } from '../../lib/supabase/auth/client'
 import { v4 as uuidv4 } from 'uuid'
 import { useRouter } from 'next/navigation'
 import CreateGroupModal from './create-group-modal'
 import type { User as SupabaseAuthUser } from '@supabase/supabase-js'
 
-const supabase = createSupabaseServerClient()
+const supabase = createClient()
 
 interface Message {
   id: string

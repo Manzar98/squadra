@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { Button } from "../components/ui/button"
 import { Input } from "../components/ui/input"
 import { X, PlusCircle } from "lucide-react"
-import { createSupabaseClientWithToken } from "@/lib/supabase/server"
+import { createClient } from "@/lib/supabase/auth/server"
 import { v4 as uuidv4 } from "uuid"
 import { SupabaseClient } from "@supabase/supabase-js";
 import { runWithSpan } from "@/lib/api-client"
@@ -39,8 +39,11 @@ export function InviteModal({ isOpen, onClose, onInvitesSent, authenticatedUser 
   const [supabase, setSupabase] = useState<SupabaseClient | null>(null);
 
   useEffect(() => {
-    const token = window.sessionStorage.getItem("supabaseToken") || "";
-    setSupabase(createSupabaseClientWithToken(token));
+    const initializeSupabase = async () => {
+      const supabase = await createClient();
+      setSupabase(supabase);
+    };
+    initializeSupabase();
   }, []);
 
   useEffect(() => {

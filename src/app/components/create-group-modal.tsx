@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { createSupabaseServerClient } from '../../lib/supabase/client'
+import { createClient } from '../../lib/supabase/auth/client'
 import { v4 as uuidv4 } from 'uuid'
 
 interface User {
@@ -16,7 +16,7 @@ interface Props {
 }
 
 export default function CreateGroupModal({ onGroupCreated, onClose }: Props) {
-  const supabase = createSupabaseServerClient()
+  const supabase = createClient()
 
   const [groupName, setGroupName] = useState('')
   const [allUsers, setAllUsers] = useState<User[]>([])

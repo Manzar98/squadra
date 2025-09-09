@@ -1,9 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { Button } from "../components/ui/button";
 import InputField from "../components/ui/input-field";
+import { createClient } from "../../lib/supabase/auth/client";
+import { useRouter } from "next/navigation";
+
 
 export default function ResetPage() {
   const [password, setPassword] = useState("");
@@ -11,7 +14,33 @@ export default function ResetPage() {
   const [confirmError, setConfirmError] = useState<string | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
-  const handleResetPassword = (e: React.FormEvent) => {
+
+  const supabase = createClient();
+  const router = useRouter();
+  useEffect(() => {
+    // Example: #access_token=xxx&refresh_token=yyy&type=recovery
+    const hash = window.location.hash.substring(1) // remove the #
+    const params = new URLSearchParams(hash)
+    const access_token = params.get("access_token")
+    const refresh_token = params.get("refresh_token")
+
+    if (access_token && refresh_token) {
+      supabase.auth
+        .setSession({
+          access_token,
+          refresh_token,
+        })
+        .then(({ error }) => {
+          if (!error) {
+            // ✅ clean URL after setting session
+            router.replace("/reset-password")
+          }
+        })
+    }
+  }, [supabase, router])
+
+
+  const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitError(null);
 
@@ -24,9 +53,13 @@ export default function ResetPage() {
       return;
     }
     setConfirmError(null);
-
-    // ✅ Call your API here
-    console.log("Reset password submitted", { password, confirmPassword });
+    const { error } = await supabase.auth.updateUser({
+        password: password,
+      });
+    if (error) {
+        setSubmitError(error.message);
+        return;
+        }
   };
 
   return (
