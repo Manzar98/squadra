@@ -14,7 +14,7 @@ export async function forgotPasswordAction({ email }: { email: string }) {
       type: "recovery",
       email,
       options: {
-        redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/reset-password`,
+        redirectTo: `${process.env.NEXT_PUBLIC_REDIRECT_URL}/reset-password`,
       },
     });
 
