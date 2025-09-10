@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/auth/server'
 import { sendEmail } from "@/lib/email"
+import { revalidatePath } from 'next/cache';
 
 
 
@@ -55,5 +56,19 @@ export async function forgotPasswordAction({ email }: { email: string }) {
   } catch (err: any) {
     return { success: false, message: err.message };
   }
+}
+
+
+
+export async function logoutAction() {
+  const supabase = await createClient();
+  await supabase.auth.signOut();
+  localStorage.clear();
+  revalidatePath('/dashboard');
+  revalidatePath('/dashboard/*');
+  revalidatePath('/');
+  revalidatePath('/login');
+    // Optionally, you can return a value or redirect
+  return;
 }
 

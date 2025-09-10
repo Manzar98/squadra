@@ -1,11 +1,11 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "../../components/ui/button"
 import Image from "next/image"
 import { createClient } from "../../../lib/supabase/auth/client"
 import { runWithSpan } from "@/lib/api-client"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import InputField from "../../components/ui/input-field"
 import ForgotPasswordModal from '../../components/forgot-password'
 
@@ -13,6 +13,7 @@ const supabase = createClient()
 
 export default function LoginPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [showPassword, setShowPassword] = useState(false)
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -20,6 +21,18 @@ export default function LoginPage() {
   const [passwordError, setPasswordError] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // Check if user is already authenticated
+  useEffect(() => {
+    const checkUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        const redirectTo = searchParams.get('redirectedFrom') || '/dashboard'
+        router.push(redirectTo)
+      }
+    }
+    checkUser()
+  }, [router, searchParams])
 
   const handleLogin = async (e: { preventDefault: () => void }) => {
     e.preventDefault()
@@ -43,13 +56,12 @@ export default function LoginPage() {
             setError(loginError.message)
             throw loginError
           }
-          const token = data.session?.access_token
-          if (token) sessionStorage.setItem("supabaseToken", token)
         },
         { email },
       )
 
-      router.push("/dashboard")
+      const redirectTo = searchParams.get('redirectedFrom') || '/dashboard'
+      router.push(redirectTo)
     } catch {
       setError("Unexpected error occurred")
     }

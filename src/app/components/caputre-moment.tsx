@@ -11,6 +11,7 @@ import { TextArea } from "../components/ui/textarea"
 import Swal from "sweetalert2"
 import FileUpload from "./file-upload"
 import { supabase } from "@/lib/supabase/auth/client"
+import { logoutAction } from "@/lib/supabase/auth"
 
 export default function CaptureAMoment() {
     const router = useRouter()
@@ -191,11 +192,8 @@ export default function CaptureAMoment() {
     }
 
     const handleSignOut = async() => {
-      await supabase.auth.signOut();
-      sessionStorage.removeItem("supabaseToken");
-      window.location.href = "/login";
-        // Add sign out logic here
-        localStorage.clear()
+      
+        await logoutAction()
         router.push("/login")
     }
 
