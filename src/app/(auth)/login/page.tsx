@@ -21,6 +21,7 @@ export default function LoginPage() {
   const [passwordError, setPasswordError] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   // Check if user is already authenticated
   useEffect(() => {
@@ -45,6 +46,7 @@ export default function LoginPage() {
     if (isEmailEmpty || isPasswordEmpty) return
 
     setError(null)
+    setIsSubmitting(true)
 
     try {
       await runWithSpan(
@@ -62,8 +64,16 @@ export default function LoginPage() {
 
       const redirectTo = searchParams.get('redirectedFrom') || '/dashboard'
       router.push(redirectTo)
-    } catch {
-      setError("Unexpected error occurred")
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        setError(error.message)
+      } else if (typeof error === "string") {
+        setError(error)
+      } else {
+        setError("Unexpected error occurred")
+      }
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -160,6 +170,7 @@ export default function LoginPage() {
                   type="submit"
                   data-testid="login-button"
                   className="w-full lg:w-[150px] h-[42px] rounded-full text-black text-[14px] font-[700] tracking-[0.75px] font-heading hover:bg-[#00a41c] transition-all"
+                  isLoading={isSubmitting}
                 >
                   SIGN IN
                 </Button>

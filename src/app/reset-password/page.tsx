@@ -13,6 +13,7 @@ export default function ResetPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [confirmError, setConfirmError] = useState<string | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
 
   const supabase = createClient();
@@ -42,22 +43,30 @@ export default function ResetPage() {
 
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitting(true);
     setSubmitError(null);
 
     if (!password || !confirmPassword) {
       setConfirmError("Both fields are required");
+      setIsSubmitting(false);
       return;
     }
     if (password !== confirmPassword) {
       setConfirmError("Passwords do not match");
+      setIsSubmitting(false);
       return;
     }
     setConfirmError(null);
     const { error } = await supabase.auth.updateUser({
         password: password,
       });
+      setConfirmPassword("");
+      setPassword("");
+      setIsSubmitting(false);
+      router.replace("/");
     if (error) {
         setSubmitError(error.message);
+        setIsSubmitting(false);
         return;
         }
   };
@@ -107,20 +116,22 @@ export default function ResetPage() {
                 errorMessage={confirmError}
               />
 
-              {/* Button */}
-              {submitError && (
-                <span className="text-red-500 text-sm mt-2 block text-center">
-                  {submitError}
-                </span>
-              )}
-              
+    
               <div className="flex justify-center mt-[50px]">
                 <Button
                   type="submit"
                   className="w-[221px] h-[42px] rounded-full text-black text-[14px] font-[700] tracking-[0.75px] font-heading hover:bg-[#00a41c] transition-all uppercase"
+                  isLoading={isSubmitting}
                 >
                   Reset My Password
                 </Button>
+              </div>
+              <div className="h-[20px] mt-2">
+                {submitError && (
+                  <p className="text-red-500 text-sm ml-2">
+                    {submitError}
+                  </p>
+                )}
               </div>
             </form>
           </div>

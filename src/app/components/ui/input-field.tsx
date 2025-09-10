@@ -54,7 +54,7 @@ export default function InputField({
       case "password":
         !isValidPassword(val) &&
           setInternalError(
-            "Must be 5+ characters, include a number and special character, no spaces"
+            "Min 5 chars, number, special, no spaces"
           );
         break;
       case "phone":

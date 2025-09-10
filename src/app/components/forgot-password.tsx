@@ -15,6 +15,7 @@ export default function ForgotPasswordModal({ isOpen, onClose }: ForgotPasswordM
     const [email, setEmail] = useState("")
     const [error, setError] = useState("")
     const [isSuccess, setIsSuccess] = useState(false)
+    const [isSubmitting, setIsSubmitting] = useState(false)
 
     const handlePasswordReset = async () => {
         if (!email.trim()) {
@@ -23,6 +24,7 @@ export default function ForgotPasswordModal({ isOpen, onClose }: ForgotPasswordM
         }
         setError("")
         try {
+         setIsSubmitting(true)
         
          const result = await forgotPasswordAction({ email: email.trim() })
           // Simulate password reset - replace with actual implementation
@@ -35,6 +37,8 @@ export default function ForgotPasswordModal({ isOpen, onClose }: ForgotPasswordM
           setIsSuccess(true)
         } catch {
           setError("Failed to send reset link. Try again.")
+        } finally {
+          setIsSubmitting(false)
         }
       }
 
@@ -79,6 +83,7 @@ export default function ForgotPasswordModal({ isOpen, onClose }: ForgotPasswordM
                                 <Button
                                     onClick={handlePasswordReset}
                                     className="h-10.5 w-35 rounded-full bg-green-500 hover:bg-green-600 text-black text-sm font-semibold tracking-wide uppercase transition-colors px-8"
+                                    isLoading={isSubmitting}
                                 >
                                     RESET
                                 </Button>
