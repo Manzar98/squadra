@@ -169,7 +169,7 @@ export default function LoginPage() {
                 <Button
                   type="submit"
                   data-testid="login-button"
-                  className="w-full lg:w-[150px] h-[42px] rounded-full text-black text-[14px] font-[700] tracking-[0.75px] font-heading hover:bg-[#00a41c] transition-all"
+                  className="w-full lg:w-[150px] h-[42px] text-[14px] font-[700] font-heading hover:bg-[#00a41c] transition-all"
                   isLoading={isSubmitting}
                 >
                   SIGN IN
@@ -233,7 +233,7 @@ export default function LoginPage() {
               <p className="text-sm lg:text-[16px] font-[600] tracking-[0.15px] font-body text-black">
                 Don’t have an account yet?{" "}
                 <button
-                  className="text-[#00A600] font-[600] hover:underline transition-all"
+                  className="text-[#00A600] font-[600] hover:underline transition-all tracking-[0.15px] pl-3"
                   onClick={() => {
                     window.location.href = "/signup"
                   }}

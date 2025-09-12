@@ -1,7 +1,7 @@
 "use server"
 
 import { createClient } from '@/lib/supabase/auth/server'
-import { sendEmail } from "@/lib/email"
+import { sendEmail } from "@/lib/email/email"
 import { revalidatePath } from 'next/cache';
 
 

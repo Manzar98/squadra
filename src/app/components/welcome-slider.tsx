@@ -8,7 +8,7 @@ import { InviteModal } from "./invite-modal"
 import { TextArea } from "./ui/textarea"
 import Image from "next/image"
 import { selectSkills } from '../../store'
-import { supabase } from "../../lib/supabase/auth/client"
+import { createClient } from "../../lib/supabase/auth/client"
 import { runWithSpan } from "../../lib/api-client"
 
 export interface TeamMember {
@@ -23,6 +23,7 @@ export interface SeletedSkills {
 }
 
 export function WelcomeSlider() {
+  const supabase = createClient();
   const [currentSlide, setCurrentSlide] = useState(0)
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false)
   const [showSuccessScreen, setShowSuccessScreen] = useState(false)

@@ -83,7 +83,7 @@ export default function InputField({
     // keep the original spacing between fields unchanged
     <div className="mb-[1.88rem]">
       {label && (
-        <label className="block mb-2 text-sm md:text-base font-medium text-[#5B5C5B]" htmlFor={id}>
+        <label className="block mb-2 text-sm md:text-base font-semibold text-[#5B5C5B] font-body" htmlFor={id}>
           {label}
         </label>
       )}

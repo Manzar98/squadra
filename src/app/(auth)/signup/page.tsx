@@ -2,12 +2,12 @@
 
 import { Suspense, lazy } from "react"
 
-const SquadraForm = lazy(() => import("../../components/signup-form"))
+const SignupComponent = lazy(() => import("../../components/signup-component"))
 
 export default function Page() {
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <SquadraForm />
+      <SignupComponent />
     </Suspense>
   )
 }

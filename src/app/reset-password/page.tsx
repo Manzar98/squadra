@@ -74,7 +74,7 @@ export default function ResetPage() {
   return (
     <div className="min-h-screen bg-white flex flex-col">
       {/* Logo */}
-      <div className="pt-10 pl-10">
+      <div className="pt-10 mx-auto lg:pl-6 lg:mx-0">
         <Image
           src="/logo.png"
           alt="Squad Logo"
@@ -90,7 +90,7 @@ export default function ResetPage() {
         {/* Heading + Form */}
         <div className="items-center justify-center px-4 mt-[60px]">
           {/* Reset Password Heading */}
-          <h1 className="text-[30px] md:text-5xl lg:text-6xl font-bold text-black text-center mb-[60px]">
+          <h1 className="text-[30px] md:text-5xl lg:text-6xl font-semibold text-black text-center mb-[60px]">
             Reset your password
           </h1>
 
@@ -138,7 +138,7 @@ export default function ResetPage() {
         </div>
 
         {/* Footer Links */}
-        <div className="pb-8 mt-[339px]">
+        <div className="pb-8 mt-25 md:mt-[339px]">
           <div className="flex justify-center gap-8 text-sm font-body">
             <button className="text-[#00A600] font-semibold hover:underline transition-all">
               Privacy & Terms
