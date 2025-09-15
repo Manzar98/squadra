@@ -6,6 +6,7 @@ import { Medal, MessagesSquare, Menu, X } from "lucide-react"
 import Image from "next/image"
 import { Button } from "../components/ui/button"
 import { CustomDropdown, DropdownItem } from "./drop-down"
+import { logoutAction } from "@/lib/supabase/auth"
 
 export function Sidebar() {
   const router = useRouter()
@@ -15,6 +16,12 @@ export function Sidebar() {
     router.push("/dashboard/give-moment")
     setIsOpen(false) // Close sidebar on mobile
   }
+
+  const handleSignOut = async() => {
+      
+    await logoutAction()
+    router.push("/login")
+}
 
   return (
     <>
@@ -58,7 +65,7 @@ export function Sidebar() {
                             </div>
                         </DropdownItem>
 
-                        <DropdownItem >
+                        <DropdownItem  onClick={handleSignOut}>
                             <div className="flex items-center font-body text-[18px] tracking-[0.5px] font-[500]">
                                 Sign out
                             </div>

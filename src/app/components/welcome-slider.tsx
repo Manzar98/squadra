@@ -34,11 +34,13 @@ export function WelcomeSlider() {
     id: "",
     referral_code: null as string | null,
   })
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const [noteText, setNoteText] = useState(
     "You did great on the last training session. The content was so useful! You did great on the last training session",
   )
   const [selectedEmoji, setSelectedEmoji] = useState("😎")
   const skills = useSelector(selectSkills)
+  
 
   
   const handleInvitesSent = (newMembers: TeamMember[]) => {
@@ -124,25 +126,36 @@ export function WelcomeSlider() {
 
   const handleSubmit = () => {
     const insertSkills = async () => {
-      await runWithSpan("Insert User Skills", async () => {
-        for (const skill of selectedSkills) {
-          const { error } = await supabase
-            .from("users-skills")
-            .insert([
-              {
-                user_info_id: selectedMember?.id,
-                skill_id: skill.id,
-                description: noteText,
-                emoji: selectedEmoji,
-              },
-            ])
-            .single();
+      setIsSubmitting(true); // Set loading state before starting the operation
+      try {
+        await runWithSpan("Insert User Skills", async () => {
+          for (const skill of selectedSkills) {
+            const { error } = await supabase
+              .from("users-skills")
+              .insert([
+                {
+                  user_info_id: selectedMember?.id,
+                  skill_id: skill.id,
+                  description: noteText,
+                  emoji: selectedEmoji,
+                },
+              ])
+              .single();
   
-          if (error) throw error;
-        }
-  
+            if (error) throw error; // If an error occurs, it will be caught by the outer try-catch
+          }
+          // setShowSuccessScreen(true) is moved outside runWithSpan to ensure it's only called after all inserts are successful
+        }, { memberId: selectedMember?.id, skillsCount: selectedSkills.length });
+        
+        // If runWithSpan completes without throwing, all inserts were successful
         setShowSuccessScreen(true);
-      }, { memberId: selectedMember?.id, skillsCount: selectedSkills.length });
+
+      } catch (error) {
+        console.error("Error submitting moment:", error);
+        // Optionally, display an error message to the user here
+      } finally {
+        setIsSubmitting(false); // Always reset loading state, regardless of success or failure
+      }
     };
   
     insertSkills();
@@ -169,14 +182,14 @@ export function WelcomeSlider() {
 
   const renderFirstSlide = () => (
     <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div className="mb-4 sm:mb-6 mt-9 lg:mt-0">
+      <div className="mb-4 sm:mb-6 mt-15 lg:mt-0">
         <div className="flex items-center justify-center gap-2 sm:gap-3 mb-6 sm:mb-12">
           <MessageSquareTextIcon className="w-6 h-6 sm:w-8 sm:h-8 text-black bg-green-500 rounded" />
           <h4 className="text-[1rem] lg:text-3xl xl:text-[34px] font-semibold sm:font-[600] text-black text-center leading-tight">
             Give a Moment of Mastery now!
           </h4>
         </div>
-        <h5 className="text-[1rem] sm:text-xl lg:text-2xl xl:text-[24px] text-black mb-4 sm:mb-6 mt-8 sm:mt-16 lg:mt-[5.125rem] text-center font-heading">
+        <h5 className="text-sm sm:text-xl lg:text-2xl xl:text-[24px] text-black mb-4 sm:mb-6 mt-8 sm:mt-16 lg:mt-[5.125rem] text-center font-heading">
           Which squadmate are you thinking of?
         </h5>
       </div>
@@ -347,6 +360,7 @@ export function WelcomeSlider() {
         <Button
           onClick={handleSubmit}
           className="w-full sm:w-auto min-w-[200px] lg:w-75 h-12 sm:h-14 bg-green-500 hover:bg-green-600 text-black font-bold px-4 sm:px-5 py-3 sm:py-4 rounded-full text-xs sm:text-sm lg:text-[14px] font-heading tracking-[0.75px]"
+          isLoading={isSubmitting}
         >
           SUBMIT MOMENT
         </Button>
@@ -357,7 +371,7 @@ export function WelcomeSlider() {
   const renderSuccessScreen = () => (
     <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="flex flex-col items-center justify-center text-center">
-        <div className="mt-2 lg:mt-0 mb-4 sm:mb-6 flex items-center justify-center">
+        <div className="mt-11 lg:mt-0 mb-4 sm:mb-6 flex items-center justify-center">
           <Image
             src="/success.gif"
             alt="Celebration"
