@@ -6,7 +6,7 @@ import { Checkbox } from "../components/ui/checkbox";
 import { CustomDropdown, DropdownItem } from "./drop-down";
 import InputField from "./ui/input-field";
 import { useToast } from "./ui/toast";
-import { validateReferralCode as validateReferral, signUpWithProfile } from "@/lib/supabase/user-service";
+import { signUpWithProfile } from "@/lib/supabase/user-service";
 
 type RegisterFormProps = {
   refCode: string | null;
@@ -16,6 +16,7 @@ type RegisterFormProps = {
 export default function RegisterForm({ refCode, onSuccess }: RegisterFormProps) {
   const toast = useToast();
   const [isRoleError, isSetRoleError] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const [formData, setFormData] = useState({
     name: "",
@@ -35,6 +36,7 @@ export default function RegisterForm({ refCode, onSuccess }: RegisterFormProps) 
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitting(true)
 
     const { email, password, name, teamName, teamRole, emailConsent } = formData;
 
@@ -57,6 +59,9 @@ export default function RegisterForm({ refCode, onSuccess }: RegisterFormProps) 
           ? "An account with this email already exists. Please log in instead."
           : error?.message || "Something went wrong. Please try again.";
       toast.error("Signup Failed", message);
+      setIsSubmitting(false)
+    }finally{
+      setIsSubmitting(false)
     }
   };
 
@@ -131,6 +136,7 @@ export default function RegisterForm({ refCode, onSuccess }: RegisterFormProps) 
       <Button
         type="submit"
         className="w-full bg-green-500 hover:bg-green-600 font-bold text-sm py-3 px-4 duration-200 mb-5"
+        isLoading={isSubmitting}
       >
         SUBMIT
       </Button>

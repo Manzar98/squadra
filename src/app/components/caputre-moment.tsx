@@ -10,7 +10,6 @@ import { CustomDropdown, DropdownItem } from "./drop-down"
 import { TextArea } from "../components/ui/textarea"
 import Swal from "sweetalert2"
 import FileUpload from "./file-upload"
-import { createClient } from "@/lib/supabase/auth/client"
 import { logoutAction } from "@/lib/supabase/auth"
 
 export default function CaptureAMoment() {

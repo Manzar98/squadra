@@ -14,7 +14,6 @@ const supabase = createClient()
 export default function LoginPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const [showPassword, setShowPassword] = useState(false)
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [emailError, setEmailError] = useState(false)
@@ -52,7 +51,7 @@ export default function LoginPage() {
       await runWithSpan(
         "User Login",
         async () => {
-          const { data, error: loginError } =
+          const {  error: loginError } =
             await supabase.auth.signInWithPassword({ email, password })
           if (loginError) {
             setError(loginError.message)
