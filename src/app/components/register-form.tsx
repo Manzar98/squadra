@@ -7,6 +7,8 @@ import { CustomDropdown, DropdownItem } from "./drop-down";
 import InputField from "./ui/input-field";
 import { useToast } from "./ui/toast";
 import { signUpWithProfile } from "@/lib/supabase/user-service";
+import { RegisterFormData } from "@/types";
+import { TEAM_ROLES } from "@/constants/team-roles";
 
 type RegisterFormProps = {
   refCode: string | null;
@@ -18,7 +20,7 @@ export default function RegisterForm({ refCode, onSuccess }: RegisterFormProps) 
   const [isRoleError, isSetRoleError] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<RegisterFormData>({
     name: "",
     email: "",
     password: "",
@@ -126,7 +128,7 @@ export default function RegisterForm({ refCode, onSuccess }: RegisterFormProps) 
             </div>
           }
         >
-          {["Admin", "Manager", "Developer", "Designer", "Analyst", "Other"].map((role) => (
+          {TEAM_ROLES.map((role) => (
             <DropdownItem key={role} onClick={() => handleInputChange("teamRole", role)}>
               {role}
             </DropdownItem>
