@@ -14,72 +14,76 @@ export function Sidebar() {
 
   const handleGiveAMoment = () => {
     router.push("/dashboard/give-moment")
-    setIsOpen(false) // Close sidebar on mobile
+    setIsOpen(false) // Close sidebar on mobile/tablet
   }
 
-  const handleSignOut = async() => {
-      
+  const handleSignOut = async () => {
     await logoutAction()
     router.push("/login")
-}
+  }
 
   return (
     <>
-      {/* Hamburger Bar (mobile/tablet only) */}
-      <div className="fixed top-0 left-0 w-full z-50 bg-white py-4 px-4 shadow-md lg:hidden flex items-center justify-between">
+      {/* Hamburger Bar (visible on all < xl) */}
+      <div className="fixed top-0 left-0 w-full z-50 bg-white py-4 px-4 shadow-md xl:hidden flex items-center justify-between">
         <button onClick={() => setIsOpen(true)} className="text-black">
           <Menu className="w-8 h-8" />
         </button>
         <CustomDropdown
-                    align="right"
-                    trigger={
-                        <div className="w-15 h-15 bg-white rounded-full flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors border border-gray-200">
-                            <span className="text-green-500 font-[600] text-[14px]">WM</span>
-                        </div>
-                    }
-                >
-                    {/* User Info Header */}
-                    <div className="px-4 py-3 border-b border-gray-200">
-                        <div className="text-[12px] font-medium text-black uppercase tracking-[2px] mb-1">PRODUCT MANAGER</div>
-                        <div className="font-semibold text-black text-[1rem] tracking-[0.15px] font-body">Melissa Duck</div>
-                        <div className="text-sm text-black font-body font-[400] tracking-[0.25px]">melissa.duck@looneytunes.com</div>
-                    </div>
+          align="right"
+          trigger={
+            <div className="w-15 h-15 bg-white rounded-full flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors border border-gray-200">
+              <span className="text-green-500 font-[600] text-[14px]">WM</span>
+            </div>
+          }
+        >
+          {/* User Info Header */}
+          <div className="px-4 py-3 border-b border-gray-200">
+            <div className="text-[12px] font-medium text-black uppercase tracking-[2px] mb-1">
+              PRODUCT MANAGER
+            </div>
+            <div className="font-semibold text-black text-[1rem] tracking-[0.15px] font-body">
+              Melissa Duck
+            </div>
+            <div className="text-sm text-black font-body font-[400] tracking-[0.25px]">
+              melissa.duck@looneytunes.com
+            </div>
+          </div>
 
-                    {/* Menu Items */}
-                    <div className="py-1">
-                        <DropdownItem >
-                            <div className="flex items-center font-body text-[18px] tracking-[0.5px] font-[500]">
-                                Profile settings
-                            </div>
-                        </DropdownItem>
+          {/* Menu Items */}
+          <div className="py-1">
+            <DropdownItem>
+              <div className="flex items-center font-body text-[18px] tracking-[0.5px] font-[500]">
+                Profile settings
+              </div>
+            </DropdownItem>
 
-                        <DropdownItem>
-                            <div className="flex items-center font-body text-[18px] tracking-[0.5px] font-[500]">
-                                Team settings
-                            </div>
-                        </DropdownItem>
+            <DropdownItem>
+              <div className="flex items-center font-body text-[18px] tracking-[0.5px] font-[500]">
+                Team settings
+              </div>
+            </DropdownItem>
 
-                        <DropdownItem>
-                            <div className="flex items-center font-body text-[18px] tracking-[0.5px] font-[500]">
-                                Get help
-                            </div>
-                        </DropdownItem>
+            <DropdownItem>
+              <div className="flex items-center font-body text-[18px] tracking-[0.5px] font-[500]">
+                Get help
+              </div>
+            </DropdownItem>
 
-                        <DropdownItem  onClick={handleSignOut}>
-                            <div className="flex items-center font-body text-[18px] tracking-[0.5px] font-[500]">
-                                Sign out
-                            </div>
-                        </DropdownItem>
-                    </div>
+            <DropdownItem onClick={handleSignOut}>
+              <div className="flex items-center font-body text-[18px] tracking-[0.5px] font-[500]">
+                Sign out
+              </div>
+            </DropdownItem>
+          </div>
         </CustomDropdown>
-        {/* <span className="text-sm font-semibold text-gray-700 tracking-wide">Navigation</span> */}
       </div>
 
       {/* Overlay */}
       {isOpen && (
         <div
           onClick={() => setIsOpen(false)}
-          className="fixed inset-0 bg-black/40 z-30 lg:hidden"
+          className="fixed inset-0 bg-black/40 z-30 xl:hidden"
         />
       )}
 
@@ -89,32 +93,32 @@ export function Sidebar() {
           fixed top-16 left-0 transform transition-transform duration-300
           w-[85vw] max-w-[280px] h-[calc(100dvh-64px)]
           ${isOpen ? "translate-x-0" : "-translate-x-full"}
-          lg:top-0 lg:translate-x-0 lg:static lg:w-[14vw] lg:h-screen lg:transform-none`}
+          xl:top-0 xl:translate-x-0 xl:static xl:w-[14vw] xl:h-screen xl:transform-none`}
       >
-        {/* Close Button (mobile only) */}
+        {/* Close Button (only for < xl) */}
         <button
-          className="absolute top-10 right-4 text-gray-600 lg:hidden z-50"
+          className="absolute top-10 right-4 text-gray-600 xl:hidden z-50"
           onClick={() => setIsOpen(false)}
         >
           <X className="w-6 h-6" />
         </button>
 
         {/* Logo */}
-        <div className="mt-6 pt-4 px-4 mb-8 lg:mt-0 lg:pt-5 lg:px-6 lg:mb-11">
+        <div className="mt-6 pt-4 px-4 mb-8 xl:mt-0 xl:pt-5 xl:px-6 xl:mb-11">
           <Image
             src="/logo.png"
             alt="Squad Logo"
             width={164}
             height={40}
             priority
-            className="w-[120px] h-auto lg:w-[164px]"
+            className="w-[120px] h-auto xl:w-[164px]"
           />
         </div>
 
         {/* Give a Moment Button */}
-        <div className="px-4 mb-6 lg:px-4 lg:mb-8.5">
+        <div className="px-4 mb-6 xl:px-4 xl:mb-8.5">
           <Button
-            className="w-full h-10 text-sm lg:h-12 lg:text-base bg-green-500 hover:bg-green-600 text-black rounded-full font-bold tracking-wide"
+            className="w-full h-10 text-sm xl:h-12 xl:text-base bg-green-500 hover:bg-green-600 text-black rounded-full font-bold tracking-wide"
             onClick={handleGiveAMoment}
           >
             GIVE A MOMENT
@@ -122,26 +126,26 @@ export function Sidebar() {
         </div>
 
         {/* Navigation Links */}
-        <div className="px-4 flex-1 space-y-6 lg:space-y-10">
+        <div className="px-4 flex-1 space-y-6 xl:space-y-10">
           <a
             href="/dashboard/mastery-zones"
-            className="flex items-center justify-between text-sm lg:text-lg font-medium tracking-wide hover:text-green-500 transition-colors"
+            className="flex items-center justify-between text-sm xl:text-lg font-medium tracking-wide hover:text-green-500 transition-colors"
           >
             <span>Your flow zones</span>
-            <Medal className="w-5 h-5 lg:w-6 lg:h-6 text-black" />
+            <Medal className="w-5 h-5 xl:w-6 xl:h-6 text-black" />
           </a>
 
           <a
             href="/dashboard/channels"
-            className="flex items-center justify-between text-sm lg:text-lg font-medium tracking-wide hover:text-green-500 transition-colors"
+            className="flex items-center justify-between text-sm xl:text-lg font-medium tracking-wide hover:text-green-500 transition-colors"
           >
             <span>Squad channel</span>
-            <MessagesSquare className="w-5 h-5 lg:w-6 lg:h-6 text-black" />
+            <MessagesSquare className="w-5 h-5 xl:w-6 xl:h-6 text-black" />
           </a>
 
           {/* Invite Squadmates Section */}
-          <div className="w-full rounded-xl border border-gray-200 shadow-sm overflow-hidden mt-10 lg:mt-16.5">
-            <div className="w-full h-[120px] relative lg:h-[139px]">
+          <div className="w-full rounded-xl border border-gray-200 shadow-sm overflow-hidden mt-10 xl:mt-16.5">
+            <div className="w-full h-[120px] relative xl:h-[139px]">
               <Image
                 src="/sideimage.png"
                 alt="Invite Squadmates illustration"
@@ -151,16 +155,16 @@ export function Sidebar() {
               />
             </div>
 
-            <div className="px-4 pt-4 lg:pt-5.5 space-y-2 lg:space-y-3">
-              <h6 className="text-base lg:text-[1.3rem] font-bold text-black leading-tight">
+            <div className="px-4 pt-4 xl:pt-5.5 space-y-2 xl:space-y-3">
+              <h6 className="text-base xl:text-[1.3rem] font-bold text-black leading-tight">
                 Invite
                 <br />
                 Squadmates
               </h6>
-              <p className="text-xs lg:text-sm text-[#00000099] font-normal">
+              <p className="text-xs xl:text-sm text-[#00000099] font-normal">
                 Squadra works best when you have all your teammates on the app.
               </p>
-              <button className="text-green-600 font-bold text-xs lg:text-sm hover:text-green-700 flex items-center gap-1 mt-3 mb-2 transition-colors">
+              <button className="text-green-600 font-bold text-xs xl:text-sm hover:text-green-700 flex items-center gap-1 mt-3 mb-2 transition-colors">
                 START INVITING 🚀
               </button>
             </div>
