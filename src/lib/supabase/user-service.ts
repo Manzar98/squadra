@@ -44,24 +44,28 @@ export async function signUpWithProfile(form: SignupFormData, referredBy: string
   const { email, password, name, teamName, teamRole, emailConsent } = form;
 
   return runWithSpan("User Signup", async () => {
-    // 1. Sign up user
+    // 1. Check if user already exists before signup
+    const { data: existingUserInfo, error: existingError } = await supabase
+      .from("users-info")
+      .select("id")
+      .eq("email", email)
+      .maybeSingle();
+    if (existingError) throw existingError;
+    if (existingUserInfo) {
+      throw new Error("User already registered with this email.");
+    }
+
+    // 2. Sign up user in Supabase Auth
     const { data: signUpData, error: signUpError } = await supabase.auth.signUp({ email, password });
     if (signUpError) throw signUpError;
 
     const userId = signUpData.user?.id;
     if (!userId) throw new Error("User ID not returned");
 
-    // 2. Check existing user info
-    const { data: existingUserInfo } = await supabase
-      .from("users-info")
-      .select("id, referral_code")
-      .eq("email", email)
-      .maybeSingle();
+    // 3. Generate referral code
+    const referralCode = await generateUniqueReferralCode();
 
-    let referralCode = existingUserInfo?.referral_code || "";
-    if (!referralCode) referralCode = await generateUniqueReferralCode();
-
-    // 3. Upsert profile
+    // 4. Insert profile (since we know it doesn’t exist)
     const userPayload = {
       user_id: userId,
       email,
@@ -73,19 +77,12 @@ export async function signUpWithProfile(form: SignupFormData, referredBy: string
       referred_by: referredBy || null,
     } as const;
 
-    if (existingUserInfo) {
-      const { error: updateError } = await supabase
-        .from("users-info")
-        .update(userPayload)
-        .eq("id", existingUserInfo.id);
-      if (updateError) throw updateError;
-    } else {
-      const { error: insertError } = await supabase.from("users-info").insert(userPayload);
-      if (insertError) throw insertError;
-    }
+    const { error: insertError } = await supabase.from("users-info").insert(userPayload);
+    if (insertError) throw insertError;
 
     return { userId, referralCode };
   }, { email });
 }
+
 
 
