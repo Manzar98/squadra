@@ -1,13 +1,13 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import RegisterForm from "./register-form";
 import CheckEmail from "./check-email";
 import { validateReferralCode as validateReferral } from "@/lib/supabase/user-service";
 
-export default function SignupComponent() {
+function SignupForm() {
   const searchParams = useSearchParams();
   const [refCode, setRefCode] = useState<string | null>(null);
   const [successEmail, setSuccessEmail] = useState<string | null>(null);
@@ -62,5 +62,13 @@ export default function SignupComponent() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function SignupComponent() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <SignupForm />
+    </Suspense>
   );
 }
