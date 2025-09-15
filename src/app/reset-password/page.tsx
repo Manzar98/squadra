@@ -69,6 +69,8 @@ export default function ResetPage() {
         setIsSubmitting(false);
         return;
         }
+    // ✅ sign out the user so they must log in with new password
+    await supabase.auth.signOut();
   };
 
   return (
