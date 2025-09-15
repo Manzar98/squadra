@@ -37,11 +37,11 @@ export default function RegisterForm({ refCode, onSuccess }: RegisterFormProps) 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true)
-
     const { email, password, name, teamName, teamRole, emailConsent } = formData;
 
     if (!email || !password || !name || !teamName || !teamRole) {
       toast.error("Missing Fields", "Please complete all required fields.");
+      setIsSubmitting(false)
       return;
     }
 
