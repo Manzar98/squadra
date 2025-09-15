@@ -63,11 +63,10 @@ export default function ForgotPasswordModal({ isOpen, onClose }: ForgotPasswordM
                         </p>
 
                         <div className="flex flex-col mt-4">
-                            <label htmlFor="forgot-email" className="text-sm font-medium text-gray-700 mb-2">
+                            <label className="text-sm font-medium text-gray-700 mb-2">
                                 Email address
                             </label>
                             <InputField
-                                id="forgot-email"
                                 type="email"
                                 placeholder="name@example.com"
                                 value={email}

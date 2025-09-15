@@ -49,16 +49,21 @@ export default function InputField({
     }
     switch (type) {
       case "email":
-        !isValidEmail(val) && setInternalError("Invalid email address");
+        if (!isValidEmail(val)) {
+          setInternalError("Invalid email address");
+        }
         break;
       case "password":
-        !isValidPassword(val) &&
+        if (!isValidPassword(val)) {
           setInternalError(
             "Min 5 chars, number, special, no spaces"
           );
+        }
         break;
       case "phone":
-        !isValidPhone(val) && setInternalError("Invalid phone number");
+        if (!isValidPhone(val)) {
+          setInternalError("Invalid phone number");
+        }
         break;
       default:
         setInternalError(null);

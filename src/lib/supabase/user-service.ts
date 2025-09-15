@@ -29,7 +29,6 @@ async function generateUniqueReferralCode(): Promise<string> {
   // Kept client-side to mirror current behavior; could be moved to an RPC for atomicity.
   // Ensures no collision in "users-info.referral_code".
   // Note: consider securing via Postgres unique index.
-  // eslint-disable-next-line no-constant-condition
   while (true) {
     const candidate = Math.random().toString(36).substring(2, 8).toUpperCase();
     const { data } = await supabase

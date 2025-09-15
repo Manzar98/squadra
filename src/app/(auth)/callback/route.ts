@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "../../../lib/supabase/auth/middleware";
 import { withErrorHandler } from "../../../lib/api-handler";
 
@@ -12,7 +12,7 @@ export const GET = withErrorHandler(async (request: Request) => {
   }
 
   if (code) {
-    const { supabase } = createClient(request as any);
+    const { supabase } = createClient(request as NextRequest);
     const { error } = await supabase.auth.exchangeCodeForSession(code);
 
     if (!error) {

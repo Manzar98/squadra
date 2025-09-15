@@ -35,7 +35,7 @@ export function useToast(): ToastContextValue {
 
 export function ToastProvider({ children }: { children: React.ReactNode }) {
   const [toasts, setToasts] = useState<ToastRecord[]>([]);
-  const timeoutsRef = useRef<Record<string, any>>({});
+  const timeoutsRef = useRef<Record<string, NodeJS.Timeout>>({});
 
   const remove = useCallback((id: string) => {
     setToasts((prev) => prev.filter((t) => t.id !== id));

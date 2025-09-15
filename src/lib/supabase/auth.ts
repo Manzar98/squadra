@@ -53,8 +53,8 @@ export async function forgotPasswordAction({ email }: { email: string }) {
     await sendEmail(email, "Reset your password", emailBody);
 
     return { success: true };
-  } catch (err: any) {
-    return { success: false, message: err.message };
+  } catch (err: unknown) {
+    return { success: false, message: err instanceof Error ? err.message : "An error occurred" };
   }
 }
 

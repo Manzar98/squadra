@@ -52,12 +52,14 @@ export default function RegisterForm({ refCode, onSuccess }: RegisterFormProps) 
       );
       toast.success("Signup Successful!", "Please check your email to confirm your account.");
       onSuccess(email); // tell parent success + pass email
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Signup failed", error);
       const message =
-        error?.message === "User already registered"
+        error instanceof Error && error.message === "User already registered"
           ? "An account with this email already exists. Please log in instead."
-          : error?.message || "Something went wrong. Please try again.";
+          : error instanceof Error && error.message
+          ? error.message
+          : "Something went wrong. Please try again.";
       toast.error("Signup Failed", message);
       setIsSubmitting(false)
     }finally{

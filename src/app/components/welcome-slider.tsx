@@ -78,7 +78,7 @@ export function WelcomeSlider() {
     }
 
     fetchTeamMembers()
-  }, [])
+  }, [supabase])
   // const skills = [
   //   "Collaboration",
   //   "Openness",
