@@ -5,6 +5,11 @@ export interface Skill {
   name: string
 }
 
+export interface FlowZone {
+  id: number
+  name: string
+}
+
 const skillsSlice = createSlice({
   name: 'skills',
   initialState: [] as Skill[],
@@ -13,12 +18,25 @@ const skillsSlice = createSlice({
   },
 })
 
+const flowZonesSlice = createSlice({
+  name: 'flowZones',
+  initialState: [] as FlowZone[],
+  reducers: {
+    setFlowZones: (_state, action: PayloadAction<FlowZone[]>) => action.payload,
+  },
+})
+
+
+
+export const { setFlowZones } = flowZonesSlice.actions
 export const { setSkills } = skillsSlice.actions
 export const selectSkills = (state: RootState) => state.skills
+export const selectFlowZones = (state: RootState) => state.flowZones
 
 export const store = configureStore({
   reducer: {
     skills: skillsSlice.reducer,
+    flowZones: flowZonesSlice.reducer,
   },
 })
 

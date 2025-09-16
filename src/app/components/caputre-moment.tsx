@@ -11,9 +11,14 @@ import { TextArea } from "../components/ui/textarea"
 import Swal from "sweetalert2"
 import FileUpload from "./file-upload"
 import { logoutAction } from "@/lib/supabase/auth"
+import { useSelector } from "react-redux"
+import { selectFlowZones} from "../../store"
+
 
 export default function CaptureAMoment() {
     const router = useRouter()
+    const flowZones = useSelector(selectFlowZones)
+
     const [formData, setFormData] = useState({
         squadmate: "",
         flowZone: "",
@@ -36,16 +41,16 @@ export default function CaptureAMoment() {
     ]
 
 
-    const flowZones = [
-        "Last all hands meeting",
-        "Client presentation",
-        "Internal presentation",
-        "Our 1:1",
-        "Small group session",
-        "Our team touchpoint",
-        "Video call",
-        "Other",
-    ]
+    // const flowZones = [
+    //     "Last all hands meeting",
+    //     "Client presentation",
+    //     "Internal presentation",
+    //     "Our 1:1",
+    //     "Small group session",
+    //     "Our team touchpoint",
+    //     "Video call",
+    //     "Other",
+    // ]
 
     const reactions = [
         "😎 Damn, you nailed it!",
@@ -282,7 +287,7 @@ export default function CaptureAMoment() {
                     <div className="flex flex-col mb-10">
                         <FuzzyDropdown
                             label="Which Flow Zone did you notice?"
-                            options={flowZones}
+                            options={flowZones.map((flowZone) => flowZone.name)}
                             placeholder="Skill or trait name e.g. Creativity, Empathy"
                             value={formData.flowZone}
                             onChange={(value) => setFormData({ ...formData, flowZone: value })}
