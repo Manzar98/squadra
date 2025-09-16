@@ -6,6 +6,7 @@ import { Button } from "../ui/button";
 import InputField from "../ui/input-field";
 import { GoogleSignInButton } from "../ui/google-signin-button";
 import { LoginFormData } from "@/types";
+import ForgotPasswordModal from "../forgot-password";
 
 interface LoginFormProps {
   searchParams: URLSearchParams;
@@ -14,6 +15,7 @@ interface LoginFormProps {
 export function LoginForm({ searchParams }: LoginFormProps) {
   const router = useRouter();
   const supabase = createClient();
+  const [isModalOpen, setIsModalOpen] = useState(false);
   
   const [formData, setFormData] = useState<LoginFormData>({
     email: "",
@@ -50,6 +52,7 @@ export function LoginForm({ searchParams }: LoginFormProps) {
     setIsSubmitting(true);
 
     try {
+
       await runWithSpan(
         "User Login",
         async () => {
@@ -95,8 +98,12 @@ export function LoginForm({ searchParams }: LoginFormProps) {
       { action: "redirect_to_google_auth" },
     );
   };
+  const handleForgotPassword = () => {
+    setIsModalOpen(true);
+  };
 
   return (
+    <>
     <form onSubmit={handleLogin}>
       {/* Email Field */}
       <div className={errors.email ? "mb-[0.6rem]" : "mb-[1.88rem]"}>
@@ -127,7 +134,7 @@ export function LoginForm({ searchParams }: LoginFormProps) {
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mt-[29px] mb-[9px] w-full lg:w-[83%] gap-4">
         <button
           type="button"
-          onClick={() => {/* TODO: Handle forgot password */}}
+          onClick={() => {handleForgotPassword()}}
           className="text-[#00A600] text-[16px] font-[600] tracking-[0.15px] leading-[1.5] font-body hover:underline"
         >
           Forgot password?
@@ -168,7 +175,12 @@ export function LoginForm({ searchParams }: LoginFormProps) {
             Sign up
           </button>
         </p>
-      </div>
+      </div>  
     </form>
+    <ForgotPasswordModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      />
+</>
   );
 }

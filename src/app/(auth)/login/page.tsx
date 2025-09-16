@@ -5,15 +5,13 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { createClient } from "../../../lib/supabase/auth/client"
 import { AuthLayout } from "../../components/auth/auth-layout"
 import { LoginForm } from "../../components/auth/login-form"
-import ForgotPasswordModal from '../../components/forgot-password'
-import { useState } from "react"
+
 
 const supabase = createClient()
 
 function LoginPageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Check if user is already authenticated
   useEffect(() => {
@@ -33,13 +31,7 @@ function LoginPageContent() {
       <h6 className="text-[20px] font-body tracking-[0.12px] font-[700] py-10 text-center lg:text-left">
         Sign in to your account
       </h6>
-      
       <LoginForm searchParams={searchParams} />
-      
-      <ForgotPasswordModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-      />
     </AuthLayout>
   )
 }
