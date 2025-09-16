@@ -38,7 +38,6 @@ export default function Channels() {
   }
 
   const handleSignOut = () => {
-    localStorage.clear()
     router.push("/login")
   }
 

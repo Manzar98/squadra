@@ -27,7 +27,6 @@ export default function MasteryZone() {
   }
 
   const handleSignOut = () => {
-    localStorage.clear()
     router.push("/login")
   }
 
