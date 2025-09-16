@@ -53,22 +53,30 @@ export function LoginForm({ searchParams }: LoginFormProps) {
 
     try {
 
-      await runWithSpan(
+      const loginData = await runWithSpan(
         "User Login",
         async () => {
-          const { error: loginError } = await supabase.auth.signInWithPassword({
+          const { data, error: loginError } = await supabase.auth.signInWithPassword({
             email: formData.email,
             password: formData.password,
           });
+      
           if (loginError) {
             setError(loginError.message);
             throw loginError;
           }
+      
+          return data; // return to outer scope
         },
         { email: formData.email },
       );
+      let redirectTo = searchParams.get('redirectedFrom') || '/dashboard/mastery-zones';
+      console.log("Last sign-in:", loginData.user?.last_sign_in_at);
+      if (!loginData.user?.last_sign_in_at) {
+        redirectTo = '/dashboard';
+      }
 
-      const redirectTo = searchParams.get('redirectedFrom') || '/dashboard';
+      
       router.push(redirectTo);
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -167,6 +175,7 @@ export function LoginForm({ searchParams }: LoginFormProps) {
         <p className="text-sm lg:text-[16px] font-[600] tracking-[0.15px] font-body text-black">
           Don&apos;t have an account yet?{" "}
           <button
+            type="button"
             className="text-[#00A600] font-[600] hover:underline transition-all tracking-[0.15px] pl-3"
             onClick={() => {
               window.location.href = "/signup";
