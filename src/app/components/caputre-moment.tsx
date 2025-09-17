@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { use, useState } from "react"
+import { useState } from "react"
 import { EnhancedFuzzyDropdown } from "../components/ui/enhanced-fuzzy-dropdown"
 import { Button } from "../components/ui/button"
 import { useRouter } from "next/navigation"
@@ -10,11 +10,9 @@ import { CustomDropdown, DropdownItem } from "./drop-down"
 import { TextArea } from "../components/ui/textarea"
 import { useToast } from "../components/ui/toast"
 import Modal from "../components/ui/modal"
-import FileUpload from "./file-upload"
 import { logoutAction } from "@/lib/supabase/auth"
 import { useSelector } from "react-redux"
 import { selectFlowZones} from "../../store"
-import {  } from "../../store"
 import { useTeamMembers } from "@/hooks/useTeamMembers"
 
 

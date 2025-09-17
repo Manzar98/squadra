@@ -27,7 +27,6 @@ export function EnhancedFuzzyDropdown({
   onChange,
   className = "",
   label,
-  isShow,
   displayValue,
 }: EnhancedFuzzyDropdownProps) {
   const [isOpen, setIsOpen] = useState(false)
