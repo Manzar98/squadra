@@ -1,20 +1,12 @@
-"use client";
+"use server";
 
-import { createClient } from "@/lib/supabase/auth/client";
+import { createClient } from "@/lib/supabase/auth/server";
 import { runWithSpan } from "@/lib/api-client";
+import { CaputureMomentOfFlow, RegisterFormData } from "@/types";
 
-const supabase = createClient();
-
-export interface SignupFormData {
-  name: string;
-  email: string;
-  password: string;
-  teamName: string;
-  teamRole: string;
-  emailConsent: boolean;
-}
 
 export async function validateReferralCode(code: string): Promise<string | null> {
+  const supabase = await createClient();
   const { data } = await supabase
     .from("users-info")
     .select("referral_code")
@@ -25,10 +17,7 @@ export async function validateReferralCode(code: string): Promise<string | null>
 }
 
 async function generateUniqueReferralCode(): Promise<string> {
-  // Rare loop, will exit quickly in practice
-  // Kept client-side to mirror current behavior; could be moved to an RPC for atomicity.
-  // Ensures no collision in "users-info.referral_code".
-  // Note: consider securing via Postgres unique index.
+  const supabase = await createClient();
   while (true) {
     const candidate = Math.random().toString(36).substring(2, 8).toUpperCase();
     const { data } = await supabase
@@ -40,49 +29,105 @@ async function generateUniqueReferralCode(): Promise<string> {
   }
 }
 
-export async function signUpWithProfile(form: SignupFormData, referredBy: string | null) {
+export async function signUpWithProfile(
+  form: RegisterFormData,
+  referredBy: string | null
+) {
+  const supabase = await createClient();
   const { email, password, name, teamName, teamRole, emailConsent } = form;
 
-  return runWithSpan("User Signup", async () => {
-    // 1. Check if user already exists before signup
-    const { data: existingUserInfo, error: existingError } = await supabase
-      .from("users-info")
-      .select("id")
-      .eq("email", email)
-      .maybeSingle();
-    if (existingError) throw existingError;
-    if (existingUserInfo) {
-      throw new Error("User already registered with this email.");
-    }
+  try {
+    return await runWithSpan(
+      "User Signup",
+      async () => {
+        // 1. Check if user already exists before signup
+        const { data: existingUserInfo, error: existingError } = await supabase
+          .from("users-info")
+          .select("id")
+          .eq("email", email)
+          .maybeSingle();
 
-    // 2. Sign up user in Supabase Auth
-    const { data: signUpData, error: signUpError } = await supabase.auth.signUp({ email, password });
-    if (signUpError) throw signUpError;
+        if (existingError) throw existingError;
+        if (existingUserInfo) {
+          throw new Error("User already registered with this email.");
+        }
 
-    const userId = signUpData.user?.id;
-    if (!userId) throw new Error("User ID not returned");
+        // 2. Sign up user in Supabase Auth
+        const { data: signUpData, error: signUpError } =
+          await supabase.auth.signUp({ email, password });
 
-    // 3. Generate referral code
-    const referralCode = await generateUniqueReferralCode();
+        if (signUpError) throw signUpError;
 
-    // 4. Insert profile (since we know it doesn’t exist)
-    const userPayload = {
-      user_id: userId,
-      email,
-      name,
-      team_name: teamName,
-      team_role: teamRole,
-      email_consent: emailConsent,
-      referral_code: referralCode,
-      referred_by: referredBy || null,
-    } as const;
+        const userId = signUpData.user?.id;
+        if (!userId) throw new Error("User ID not returned");
 
-    const { error: insertError } = await supabase.from("users-info").insert(userPayload);
-    if (insertError) throw insertError;
+        // 3. Generate referral code
+        const referralCode = await generateUniqueReferralCode();
 
-    return { userId, referralCode };
-  }, { email });
+        // 4. Insert profile
+        const userPayload = {
+          user_id: userId,
+          email,
+          name,
+          team_name: teamName,
+          team_role: teamRole,
+          email_consent: emailConsent,
+          referral_code: referralCode,
+          referred_by: referredBy || null,
+        } as const;
+
+        const { error: insertError } = await supabase
+          .from("users-info")
+          .insert(userPayload);
+
+        if (insertError) throw insertError;
+
+        return { userId, referralCode };
+      },
+      { email }
+    );
+  } catch (error) {
+    console.error("Signup failed:", error);
+    // Re-throw if you want calling code to handle it
+    throw error;
+  }
 }
+
+
+
+export async function createCaputreMomentFlow(form: CaputureMomentOfFlow) {
+  const supabase = await createClient();
+  try {
+    return await runWithSpan(
+      "Add capture moment of flow",
+      async () => {
+        const momentFlow = {
+          user_info_id: form.squadmateId,
+          flow_zone_id: form.flowZoneId,
+          show_your_reaction: form.reaction,
+          personal_note: form.note
+        }
+
+        const { error: insertError } = await supabase
+        .from("moment-of-flow")
+        .insert(momentFlow);
+
+        if (insertError) throw insertError;
+        return {success: true, msg: "Moment added"}
+
+      }
+    )
+    
+  } catch (error) {
+    console.error("Add capture moment of flow failed:", error);
+    // Re-throw if you want calling code to handle it
+    throw error;
+    
+  }
+}
+
+
+
 
 
 
