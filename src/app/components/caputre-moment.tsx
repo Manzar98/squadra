@@ -6,7 +6,6 @@ import { useState } from "react"
 import { EnhancedFuzzyDropdown } from "../components/ui/enhanced-fuzzy-dropdown"
 import { Button } from "../components/ui/button"
 import { useRouter } from "next/navigation"
-import { CustomDropdown, DropdownItem } from "./drop-down"
 import { TextArea } from "../components/ui/textarea"
 import { useToast } from "../components/ui/toast"
 import Modal from "../components/ui/modal"
@@ -80,7 +79,6 @@ export default function CaptureAMoment() {
 					<div className="hidden lg:flex">
 						<ProfileDropDownMenu />
 					</div>
-
 				</div>
 				<div className="bg-white w-full h-full flex flex-col rounded-[6px] border-gray-200">
 					<div className="max-w-4xl pl-[1.54rem] pt-[1.94rem]">
@@ -114,6 +112,7 @@ export default function CaptureAMoment() {
 								{reactions.map((reaction) => (
 									<Button
 										key={reaction}
+										data-testid={"reaction"}
 										onClick={() => setFormData({ ...formData, reaction })}
 										className={`px-6 py-3 rounded-full border-2 border-[#A3A4A3] text-[18px] text-[#A3A4A3] font-body font-[500] transition-colors ${formData.reaction === reaction
 											? "bg-green-50 text-green-500 border-green-500"
@@ -129,6 +128,7 @@ export default function CaptureAMoment() {
 							<label className="block text-[16px] text-left font-[600] text-[#5B5C5B] mb-2 font-body">Add a short personal note</label>
 							<div className="relative">
 								<TextArea
+									data-testid={"note"}
 									value={formData.note}
 									onChange={handleNoteChange}
 									placeholder="A personal note makes your encouragement more meaningful and adding specific context helps them reflect on what they did so they can build on it."
@@ -141,6 +141,7 @@ export default function CaptureAMoment() {
 
 						<Button
 							onClick={handleSubmit}
+							data-testid={"submit"}
 							isLoading={isSubmitting}
 							className="w-[452px] max-w-md h-[56px] bg-green-500 hover:bg-green-600 font-[700] text-[16px] rounded-full tracking-[0.5px] mb-8"
 						>

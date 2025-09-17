@@ -5,8 +5,6 @@ import { useRouter } from "next/navigation"
 import { Medal, MessagesSquare, Menu, X } from "lucide-react"
 import Image from "next/image"
 import { Button } from "../components/ui/button"
-import { CustomDropdown, DropdownItem } from "./drop-down"
-import { logoutAction } from "@/lib/supabase/auth"
 import ProfileDropDownMenu from "./profile-dropdown-menu"
 
 export function Sidebar() {
