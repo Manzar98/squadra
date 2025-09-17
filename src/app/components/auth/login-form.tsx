@@ -70,12 +70,20 @@ export function LoginForm({ searchParams }: LoginFormProps) {
         },
         { email: formData.email },
       );
-      let redirectTo = searchParams.get('redirectedFrom') || '/dashboard/mastery-zones';
-      console.log("Last sign-in:", loginData.user?.last_sign_in_at);
-      if (!loginData.user?.last_sign_in_at) {
+
+      const redirectedFrom = searchParams.get('redirectedFrom');
+      let redirectTo = redirectedFrom || '/dashboard/mastery-zones';
+
+      const createdAt = loginData.user?.created_at ? new Date(loginData.user.created_at).getTime() : null;
+      const lastSignInAt = loginData.user?.last_sign_in_at ? new Date(loginData.user.last_sign_in_at).getTime() : null;
+      const timeDeltaMs = (createdAt !== null && lastSignInAt !== null)
+        ? Math.abs(lastSignInAt - createdAt)
+        : null;
+      const isFirstSignIn = timeDeltaMs !== null && timeDeltaMs <= 10_000;
+
+      if (isFirstSignIn) {
         redirectTo = '/dashboard';
       }
-
       
       router.push(redirectTo);
     } catch (error: unknown) {

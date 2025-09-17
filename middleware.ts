@@ -3,22 +3,20 @@ import { NextResponse, type NextRequest } from 'next/server'
 
 export async function middleware(request: NextRequest) {
   try {
-    // Create Supabase client and get response
     const { supabase, response } = createClient(request)
-    
-    // Refresh session if expired - required for Server Components
+
+    // Refresh session if expired
     const {
       data: { user },
     } = await supabase.auth.getUser()
-
-    // Define protected routes
+    
     const protectedRoutes = ['/dashboard']
     const authRoutes = ['/login', '/signup', '/reset-password']
-    
-    const isProtectedRoute = protectedRoutes.some(route => 
+
+    const isProtectedRoute = protectedRoutes.some(route =>
       request.nextUrl.pathname.startsWith(route)
     )
-    const isAuthRoute = authRoutes.some(route => 
+    const isAuthRoute = authRoutes.some(route =>
       request.nextUrl.pathname.startsWith(route)
     )
 
@@ -29,9 +27,31 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(redirectUrl)
     }
 
-    // Redirect authenticated users from auth routes
+    // If user is authenticated and lands on base /dashboard, route them based on first-time logic
+    if (user && request.nextUrl.pathname === '/dashboard') {
+      const createdAt = user.created_at ? new Date(user.created_at).getTime() : null
+      const lastSignInAt = user.last_sign_in_at ? new Date(user.last_sign_in_at).getTime() : null
+      const timeDeltaMs =
+        createdAt !== null && lastSignInAt !== null ? Math.abs(lastSignInAt - createdAt) : null
+      const isFirstSignIn = timeDeltaMs !== null && timeDeltaMs <= 10_000
+
+      const redirectTo = isFirstSignIn ? '/dashboard' : '/dashboard/mastery-zones'
+      if (request.nextUrl.pathname !== redirectTo) {
+        return NextResponse.redirect(new URL(redirectTo, request.url))
+      }
+    }
+
+    // Redirect authenticated users away from auth routes
     if (isAuthRoute && user) {
-      return NextResponse.redirect(new URL('/dashboard', request.url))
+      const redirectedFrom = request.nextUrl.searchParams.get('redirectedFrom')
+      if (redirectedFrom && redirectedFrom.startsWith('/dashboard')) {
+        return NextResponse.redirect(new URL(redirectedFrom, request.url))
+      }
+
+      // Use presence of last_sign_in_at: if present -> returning user
+      const hasLastSignIn = Boolean(user.last_sign_in_at)
+      const redirectTo = hasLastSignIn ? '/dashboard/mastery-zones' : '/dashboard'
+      return NextResponse.redirect(new URL(redirectTo, request.url))
     }
 
     // Handle auth callback
@@ -39,10 +59,8 @@ export async function middleware(request: NextRequest) {
       return response
     }
 
-    // Return the response with updated cookies
     return response
   } catch (error) {
-    // If there's an error, redirect to login
     console.error('Middleware error:', error)
     return NextResponse.redirect(new URL('/login', request.url))
   }
@@ -50,13 +68,6 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - public folder
-     */
     '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 }

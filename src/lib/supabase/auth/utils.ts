@@ -29,6 +29,11 @@ export async function requireNoAuth() {
   const user = await getUser()
   
   if (user) {
-    redirect('/dashboard')
+    if(user?.last_sign_in_at){
+      redirect('/dashboard/mastery-zones')
+    }else{
+      redirect('/dashboard/')
+    }
+    
   }
 }

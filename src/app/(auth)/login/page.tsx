@@ -18,7 +18,7 @@ function LoginPageContent() {
     const checkUser = async () => {
       const { data: { user } } = await supabase.auth.getUser()
       if (user) {
-        const redirectTo = searchParams.get('redirectedFrom') || '/dashboard'
+        const redirectTo = searchParams.get('redirectedFrom') || user?.last_sign_in_at ? '/dashboard/mastery-zones' : '/dashboard'
         router.push(redirectTo)
       }
     }
