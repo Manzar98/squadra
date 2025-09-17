@@ -2,8 +2,8 @@
 
 import type React from "react"
 
-import { useState } from "react"
-import { FuzzyDropdown } from "../components/fuzzy-dropdown"
+import { use, useState } from "react"
+import { EnhancedFuzzyDropdown } from "../components/ui/enhanced-fuzzy-dropdown"
 import { Button } from "../components/ui/button"
 import { useRouter } from "next/navigation"
 import { CustomDropdown, DropdownItem } from "./drop-down"
@@ -13,44 +13,22 @@ import FileUpload from "./file-upload"
 import { logoutAction } from "@/lib/supabase/auth"
 import { useSelector } from "react-redux"
 import { selectFlowZones} from "../../store"
+import {  } from "../../store"
+import { useTeamMembers } from "@/hooks/useTeamMembers"
+
 
 
 export default function CaptureAMoment() {
     const router = useRouter()
     const flowZones = useSelector(selectFlowZones)
+    const { teamMembers } = useTeamMembers()
 
     const [formData, setFormData] = useState({
-        squadmate: "",
-        flowZone: "",
+        squadmateId: "",
+        flowZoneId: "",
         reaction: "",
         note: "",
     })
-
-    const squadmates = [
-        "User Name One",
-        "User Name Two",
-        "User Name Three",
-        "User Name Four",
-        "John Doe",
-        "Jane Smith",
-        "Peter Jones",
-        "Bugs Bunny",
-        "Daffy Duck",
-        "Tweety",
-        "Henery Hawk",
-    ]
-
-
-    // const flowZones = [
-    //     "Last all hands meeting",
-    //     "Client presentation",
-    //     "Internal presentation",
-    //     "Our 1:1",
-    //     "Small group session",
-    //     "Our team touchpoint",
-    //     "Video call",
-    //     "Other",
-    // ]
 
     const reactions = [
         "😎 Damn, you nailed it!",
@@ -62,8 +40,9 @@ export default function CaptureAMoment() {
     ]
 
     const handleSubmit = () => {
+
         // Validate form data
-        if (!formData.squadmate || !formData.flowZone || !formData.reaction) {
+        if (!formData.squadmateId || !formData.flowZoneId || !formData.reaction) {
           Swal.fire({
             title: "Missing Information",
             text: "Please fill in all required fields before submitting.",
@@ -80,7 +59,7 @@ export default function CaptureAMoment() {
             <div style="text-align: center; padding: 20px 10px;" class="font-body">
             <span class="text-[120px]">🎉</span>
               <div class="text-[16px] font-[600] text-black font-body">
-                Woo hoo! You've just made ${formData.squadmate || "[username]"}'s day and helped them build a skill too!
+                Woo hoo! You've just made ${teamMembers.find(m => m.id === formData.squadmateId)?.name || "[username]"}'s day and helped them build a skill too!
               </div>
             </div>
           `,
@@ -158,8 +137,8 @@ export default function CaptureAMoment() {
                 Swal.close()
                 // Reset form for new moment
                 setFormData({
-                  squadmate: "",
-                  flowZone: "",
+                  squadmateId: "",
+                  flowZoneId: "",
                   reaction: "",
                   note: "",
                 })
@@ -275,22 +254,22 @@ export default function CaptureAMoment() {
             <div className="bg-white w-full h-full flex flex-col rounded-[6px] border-gray-200">
                 <div className="max-w-4xl pl-[1.54rem] pt-[1.94rem]">
                     <div className="flex flex-col mb-10">
-                        <FuzzyDropdown
+                        <EnhancedFuzzyDropdown
                             label="Which Squadmate would you like to encourage?"
-                            options={squadmates}
-                            value={formData.squadmate}
-                            onChange={(value) => setFormData({ ...formData, squadmate: value })}
+                            options={teamMembers.map((member) => ({ id: member.id, name: member.name }))}
+                            value={formData.squadmateId}
+                            onChange={(id) => setFormData({ ...formData, squadmateId: id })}
                             placeholder="Type their name or enter email to send an invite"
                             className="w-[451px] h-[46px] mb-8"
                         />
                     </div>
                     <div className="flex flex-col mb-10">
-                        <FuzzyDropdown
+                        <EnhancedFuzzyDropdown
                             label="Which Flow Zone did you notice?"
-                            options={flowZones.map((flowZone) => flowZone.name)}
+                            options={flowZones.map((flowZone) => ({ id: flowZone.id.toString(), name: flowZone.name }))}
                             placeholder="Skill or trait name e.g. Creativity, Empathy"
-                            value={formData.flowZone}
-                            onChange={(value) => setFormData({ ...formData, flowZone: value })}
+                            value={formData.flowZoneId}
+                            onChange={(id) => setFormData({ ...formData, flowZoneId: id })}
                             className="w-[451px] h-[46px] mb-8"
                             isShow={true}
                         />
@@ -302,7 +281,7 @@ export default function CaptureAMoment() {
                         </label>
                         <div className="flex flex-wrap gap-3">
                             {reactions.map((reaction) => (
-                                <button
+                                <Button
                                     key={reaction}
                                     onClick={() => setFormData({ ...formData, reaction })}
                                     className={`px-6 py-3 rounded-full border-2 border-[#A3A4A3] text-[18px] text-[#A3A4A3] font-body font-[500] transition-colors ${formData.reaction === reaction
@@ -311,7 +290,7 @@ export default function CaptureAMoment() {
                                         }`}
                                 >
                                     {reaction}
-                                </button>
+                                </Button>
                             ))}
                         </div>
                     </div>
@@ -327,7 +306,7 @@ export default function CaptureAMoment() {
                             <div className="text-[12px] text-gray-400">{formData.note.length}/400</div>
                         </div>
                     </div>
-                    <FileUpload />
+                    {/* <FileUpload /> */}
 
                     <Button
                     onClick={handleSubmit}
