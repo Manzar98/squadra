@@ -8,7 +8,8 @@ import { Button } from "../components/ui/button"
 import { useRouter } from "next/navigation"
 import { CustomDropdown, DropdownItem } from "./drop-down"
 import { TextArea } from "../components/ui/textarea"
-import Swal from "sweetalert2"
+import { useToast } from "../components/ui/toast"
+import Modal from "../components/ui/modal"
 import FileUpload from "./file-upload"
 import { logoutAction } from "@/lib/supabase/auth"
 import { useSelector } from "react-redux"
@@ -23,12 +24,16 @@ export default function CaptureAMoment() {
     const flowZones = useSelector(selectFlowZones)
     const { teamMembers } = useTeamMembers()
 
+    const toast = useToast()
+
     const [formData, setFormData] = useState({
         squadmateId: "",
         flowZoneId: "",
         reaction: "",
         note: "",
     })
+
+    const [isSuccessOpen, setIsSuccessOpen] = useState(false)
 
     const reactions = [
         "😎 Damn, you nailed it!",
@@ -43,113 +48,12 @@ export default function CaptureAMoment() {
 
         // Validate form data
         if (!formData.squadmateId || !formData.flowZoneId || !formData.reaction) {
-          Swal.fire({
-            title: "Missing Information",
-            text: "Please fill in all required fields before submitting.",
-            icon: "warning",
-            confirmButtonText: "OK",
-            confirmButtonColor: "#3FD24D",
-          })
+          toast.error("Missing Information", "Please fill in all required fields before submitting.")
           return
         }
     
-        // Show success alert
-        Swal.fire({
-          html: `
-            <div style="text-align: center; padding: 20px 10px;" class="font-body">
-            <span class="text-[120px]">🎉</span>
-              <div class="text-[16px] font-[600] text-black font-body">
-                Woo hoo! You've just made ${teamMembers.find(m => m.id === formData.squadmateId)?.name || "[username]"}'s day and helped them build a skill too!
-              </div>
-            </div>
-          `,
-          showConfirmButton: false,
-          showCancelButton: false,
-          width: "500px",
-          padding: "17px",
-          background: "#ffffff",
-          backdrop: "rgba(0,0,0,0.4)",
-          customClass: {
-            popup: "success-modal",
-            htmlContainer: "success-content",
-          },
-          didOpen: () => {
-            // Add custom buttons
-            const popup = Swal.getPopup()
-            if (popup) {
-              const buttonContainer = document.createElement("div")
-              buttonContainer.style.cssText = `
-                display: flex;
-                gap: 15px;
-                justify-content: center;
-                flex-wrap: wrap;
-              `
-    
-              const teamChannelBtn = document.createElement("button")
-              teamChannelBtn.innerHTML = "GO TO TEAM CHANNEL"
-              teamChannelBtn.className="font-heading"
-              teamChannelBtn.style.cssText = `
-                background: white;
-                border: 2px solid #3FD24D;
-                color: #3FD24D;
-                padding: 12px 24px;
-                border-radius: 25px;
-                font-weight: 700;
-                font-size: 14px;
-                cursor: pointer;
-                transition: all 0.2s;
-                min-width: 160px;
-              `
-              teamChannelBtn.onmouseover = () => {
-                teamChannelBtn.style.backgroundColor = "#e6f9e7"
-              }
-              teamChannelBtn.onmouseout = () => {
-                teamChannelBtn.style.backgroundColor = "#ffff"
-              }
-
-              teamChannelBtn.onclick = () => {
-                Swal.close()
-                router.push("/team-channel")
-              }
-    
-              const newMomentBtn = document.createElement("button")
-              newMomentBtn.innerHTML = "NEW MOMENT"
-              newMomentBtn.className="font-heading"
-              newMomentBtn.style.cssText = `
-                background: #3FD24D;
-                border: 2px solid #3FD24D;
-                color: #000;
-                border-radius: 25px;
-                font-weight: 700;
-                font-size: 14px;
-                cursor: pointer;
-                transition: all 0.2s;
-                min-width: 222px;
-              `
-              newMomentBtn.onmouseover = () => {
-                newMomentBtn.style.backgroundColor = "#00b914"
-              }
-              newMomentBtn.onmouseout = () => {
-                newMomentBtn.style.backgroundColor = "#3FD24D"
-              }
-              
-              newMomentBtn.onclick = () => {
-                Swal.close()
-                // Reset form for new moment
-                setFormData({
-                  squadmateId: "",
-                  flowZoneId: "",
-                  reaction: "",
-                  note: "",
-                })
-              }
-    
-              buttonContainer.appendChild(teamChannelBtn)
-              buttonContainer.appendChild(newMomentBtn)
-              popup.appendChild(buttonContainer)
-            }
-          },
-        })
+        // Open success modal
+        setIsSuccessOpen(true)
     
         // Store the form data
         localStorage.setItem("submittedMoment", JSON.stringify(formData))
@@ -182,29 +86,9 @@ export default function CaptureAMoment() {
 
     return (
         <>
-        <style jsx global>{`
-          .success-modal {
-            border-radius: 16px !important;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
-          }
-          .success-content {
-            margin: 0 !important;
-          }
-          @media (max-width: 640px) {
-            .success-modal {
-              width: 90% !important;
-              margin: 0 auto !important;
-            }
-            .success-modal button {
-              min-width: 140px !important;
-              font-size: 12px !important;
-              padding: 10px 20px !important;
-            }
-          }
-        `}</style>
-        <div className="mt-10 lg:mt-0 flex flex-1 flex-col item-center px-[1.5rem] pb-[3.9rem] justify-center">
+        <div className="mt-22 xl:mt-0 flex flex-1 flex-col item-center px-[1.5rem] pb-[3.9rem] justify-center">
             <div className="flex justify-between items-center align-middle mt-[1.25rem] mb-[1.1875rem]">
-                <h4 className="lg:text-[34px] font-[600] text-gray-900 tracking-[0.25px]">Capture a Moment of Flow</h4>
+                <h4 className="text-2xl lg:text-[34px]  font-[600] text-gray-900 tracking-[0.25px]">Capture a Moment of Flow</h4>
                 <div className="hidden lg:flex">
                 <CustomDropdown
                     align="right"
@@ -294,7 +178,7 @@ export default function CaptureAMoment() {
                             ))}
                         </div>
                     </div>
-                    <div className="mb-[2.44rem]">
+                    <div className="mb-[2.44rem] mr-4">
                         <label className="block text-[16px] text-left font-[600] text-[#5B5C5B] mb-2 font-body">Add a short personal note</label>
                         <div className="relative">
                             <TextArea
@@ -318,6 +202,41 @@ export default function CaptureAMoment() {
                 </div>
             </div>
         </div>
+        {/* Success Modal */}
+        <Modal
+          isOpen={isSuccessOpen}
+          onClose={() => setIsSuccessOpen(false)}
+          size="lg"
+          showCloseButton={false}
+          className="rounded-2xl"
+        >
+          <div className="text-center px-2 py-4">
+            <div className="text-[120px] leading-none">🎉</div>
+            <div className="text-[16px] font-[600] text-black mt-2 font-body">
+              {`Woo hoo! You've just made ${teamMembers.find(m => m.id === formData.squadmateId)?.name || "[username]"}'s day and helped them build a skill too!`}
+            </div>
+            <div className="mt-6 flex flex-col sm:flex-row justify-center items-stretch sm:items-center gap-3 sm:gap-4 flex-nowrap">
+              <Button
+                className="font-heading bg-white border-2 border-[#3FD24D] text-[#3FD24D] font-[700] text-sm sm:min-w-[160px] transition-colors hover:bg-[#e6f9e7] w-full sm:w-auto"
+                onClick={() => {
+                  setIsSuccessOpen(false)
+                  router.push("/team-channel")
+                }}
+              >
+                GO TO TEAM CHANNEL
+              </Button>
+              <Button
+                className="font-heading bg-[#3FD24D] border-2 border-[#3FD24D] text-black font-[700] text-sm sm:min-w-[222px] transition-colors hover:bg-[#00b914] w-full sm:w-auto"
+                onClick={() => {
+                  setIsSuccessOpen(false)
+                  setFormData({ squadmateId: "", flowZoneId: "", reaction: "", note: "" })
+                }}
+              >
+                NEW MOMENT
+              </Button>
+            </div>
+          </div>
+        </Modal>
         </>
 
     )
