@@ -7,6 +7,7 @@ import Image from "next/image"
 import { Button } from "../components/ui/button"
 import { CustomDropdown, DropdownItem } from "./drop-down"
 import { logoutAction } from "@/lib/supabase/auth"
+import ProfileDropDownMenu from "./profile-dropdown-menu"
 
 export function Sidebar() {
   const router = useRouter()
@@ -17,10 +18,6 @@ export function Sidebar() {
     setIsOpen(false) // Close sidebar on mobile/tablet
   }
 
-  const handleSignOut = async () => {
-    await logoutAction()
-    router.push("/login")
-  }
 
   return (
     <>
@@ -29,54 +26,7 @@ export function Sidebar() {
         <button onClick={() => setIsOpen(true)} className="text-black">
           <Menu className="w-8 h-8" />
         </button>
-        <CustomDropdown
-          align="right"
-          trigger={
-            <div className="w-15 h-15 bg-white rounded-full flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors border border-gray-200">
-              <span className="text-green-500 font-[600] text-[14px]">WM</span>
-            </div>
-          }
-        >
-          {/* User Info Header */}
-          <div className="px-4 py-3 border-b border-gray-200">
-            <div className="text-[12px] font-medium text-black uppercase tracking-[2px] mb-1">
-              PRODUCT MANAGER
-            </div>
-            <div className="font-semibold text-black text-[1rem] tracking-[0.15px] font-body">
-              Melissa Duck
-            </div>
-            <div className="text-sm text-black font-body font-[400] tracking-[0.25px]">
-              melissa.duck@looneytunes.com
-            </div>
-          </div>
-
-          {/* Menu Items */}
-          <div className="py-1">
-            <DropdownItem>
-              <div className="flex items-center font-body text-[18px] tracking-[0.5px] font-[500]">
-                Profile settings
-              </div>
-            </DropdownItem>
-
-            <DropdownItem>
-              <div className="flex items-center font-body text-[18px] tracking-[0.5px] font-[500]">
-                Team settings
-              </div>
-            </DropdownItem>
-
-            <DropdownItem>
-              <div className="flex items-center font-body text-[18px] tracking-[0.5px] font-[500]">
-                Get help
-              </div>
-            </DropdownItem>
-
-            <DropdownItem onClick={handleSignOut}>
-              <div className="flex items-center font-body text-[18px] tracking-[0.5px] font-[500]">
-                Sign out
-              </div>
-            </DropdownItem>
-          </div>
-        </CustomDropdown>
+        <ProfileDropDownMenu />
       </div>
 
       {/* Overlay */}

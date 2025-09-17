@@ -4,11 +4,10 @@ import { Button } from "../components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/avatar"
 import { Badge } from "../components/ui/badge"
 import { Input } from "../components/ui/input"
-import { CustomDropdown, DropdownItem } from "./drop-down"
-import { Heart,  Users, Eye, Info, Mountain, MessageSquareCode, IceCream, MessageSquare } from "lucide-react"
-import { useRouter } from "next/navigation"
+import { Heart, Users, Eye, Info, Mountain, MessageSquareCode, IceCream, MessageSquare } from "lucide-react"
 import React, { useState } from "react";
 import Image from "next/image"
+import ProfileDropDownMenu from "./profile-dropdown-menu"
 
 // Simple Tooltip component
 function Tooltip({ children, text }: { children: React.ReactNode; text: string }) {
@@ -24,22 +23,6 @@ function Tooltip({ children, text }: { children: React.ReactNode; text: string }
 
 export default function Channels() {
   const [showAll, setShowAll] = useState(false);
-  const router = useRouter()
-  const handleProfileSettings = () => {
-    router.push("/profile-settings")
-  }
-
-  const handleTeamSettings = () => {
-    router.push("/team-settings")
-  }
-
-  const handleGetHelp = () => {
-    router.push("/help")
-  }
-
-  const handleSignOut = () => {
-    router.push("/login")
-  }
 
   // Example avatar data for tooltips
   const signatureZoneAvatars = [
@@ -93,56 +76,9 @@ export default function Channels() {
           <div className="flex items-center gap-2 sm:gap-4">
             <h4 className="text-lg sm:text-2xl lg:text-[34px] font-semibold text-gray-900">Looney Tunes&#39; channel</h4>
           </div>
+          {/* add Profile dropdown here */}
           <div className="hidden lg:flex">
-          <CustomDropdown
-            align="right"
-            trigger={
-              <div className="w-12 h-12 rounded-full overflow-hidden cursor-pointer hover:ring-2 hover:ring-gray-200 transition-all">
-                <Avatar className="w-full h-full">
-                  <AvatarImage
-                    src="/thumb8.jpg"
-                    alt="Melissa Duck profile picture"
-                    className="w-full h-full object-cover"
-                  />
-                  <AvatarFallback className="bg-yellow-400 text-white font-semibold">MD</AvatarFallback>
-                </Avatar>
-              </div>
-            }
-          >
-            {/* User Info Header */}
-            <div className="px-4 py-3 border-b border-gray-200">
-              <div className="text-[12px] font-medium text-black uppercase tracking-[2px] mb-1">PRODUCT MANAGER</div>
-              <div className="font-semibold text-black text-[1rem] tracking-[0.15px] font-body">Melissa Duck</div>
-              <div className="text-sm text-black font-body font-[400] tracking-[0.25px]">melissa.duck@looneytunes.com</div>
-            </div>
-
-            {/* Menu Items */}
-            <div className="py-1">
-              <DropdownItem onClick={handleProfileSettings}>
-                <div className="flex items-center font-body text-[18px] tracking-[0.5px] font-[500]">
-                  Profile settings
-                </div>
-              </DropdownItem>
-
-              <DropdownItem onClick={handleTeamSettings}>
-                <div className="flex items-center font-body text-[18px] tracking-[0.5px] font-[500]">
-                  Team settings
-                </div>
-              </DropdownItem>
-
-              <DropdownItem onClick={handleGetHelp}>
-                <div className="flex items-center font-body text-[18px] tracking-[0.5px] font-[500]">
-                  Get help
-                </div>
-              </DropdownItem>
-
-              <DropdownItem onClick={handleSignOut}>
-                <div className="flex items-center font-body text-[18px] tracking-[0.5px] font-[500]">
-                  Sign out
-                </div>
-              </DropdownItem>
-            </div>
-          </CustomDropdown>
+            <ProfileDropDownMenu />
           </div>
         </div>
 
@@ -271,29 +207,29 @@ export default function Channels() {
                       <AvatarFallback className="bg-yellow-400 text-white font-semibold">BB</AvatarFallback>
                     </Avatar>
                   </Tooltip>
-                
-                      <div className="flex-1">
-                        {comments.slice(0, showAll ? comments.length : 1).map((comment, idx) => (
-                          <div key={idx} className="bg-green-50 p-4 rounded-xl border border-green-100 mb-2">
-                            <p className="font-semibold mb-1 text-black font-body">{comment.name}</p>
-                            <p className="text-[#5B5C5B] text-sm leading-relaxed tracking-[0.1px]">
-                              {comment.text}
-                            </p>
-                          </div>
-                        ))}
-                        {!showAll && (
-                          <a
-                            href="#"
-                            className="text-green-700 text-sm font-semibold hover:underline font-body"
-                            onClick={e => {
-                              e.preventDefault();
-                              setShowAll(true);
-                            }}
-                          >
-                            View 4 more Comments
-                          </a>
-                        )}
+
+                  <div className="flex-1">
+                    {comments.slice(0, showAll ? comments.length : 1).map((comment, idx) => (
+                      <div key={idx} className="bg-green-50 p-4 rounded-xl border border-green-100 mb-2">
+                        <p className="font-semibold mb-1 text-black font-body">{comment.name}</p>
+                        <p className="text-[#5B5C5B] text-sm leading-relaxed tracking-[0.1px]">
+                          {comment.text}
+                        </p>
                       </div>
+                    ))}
+                    {!showAll && (
+                      <a
+                        href="#"
+                        className="text-green-700 text-sm font-semibold hover:underline font-body"
+                        onClick={e => {
+                          e.preventDefault();
+                          setShowAll(true);
+                        }}
+                      >
+                        View 4 more Comments
+                      </a>
+                    )}
+                  </div>
                 </div>
                 {/* Input + Button row */}
                 <div className="flex items-center gap-3 ml-14">
