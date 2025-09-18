@@ -35,7 +35,6 @@ interface InviteModalProps {
 
 export function InviteModal({ isOpen, onClose, onInvitesSent, authenticatedUser }: InviteModalProps) {
   const [inviteFields, setInviteFields] = useState<InviteField[]>([{ id: "1", email: "", name: "" }])
-  const [emailErrors, setEmailErrors] = useState<Record<string, boolean>>({})
   const [referralCode, setReferralCode] = useState<string | null>(null)
   const [supabase, setSupabase] = useState<SupabaseClient | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -112,8 +111,6 @@ export function InviteModal({ isOpen, onClose, onInvitesSent, authenticatedUser 
               newEmailErrors[field.id] = false;
             }
           });
-
-          setEmailErrors(newEmailErrors);
           if (hasError) {
             toast.error("Missing required fields", "Please fill in all email and name fields.");
             return;
