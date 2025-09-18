@@ -69,3 +69,26 @@ export async function logoutAction() {
   return;
 }
 
+
+export async function getLastSignInAt(email: string) {
+
+  const supabase = await createClient();
+  const userId = await getUserId(email);
+
+  if (!userId) return null
+  const { data, error } = await supabase.auth.admin.getUserById(userId)
+  if (error) throw error
+  return data.user.last_sign_in_at
+}
+
+const getUserId = async (email: string) => {
+
+  const supabase = await createClient();
+  const { data, error } = await supabase
+  .from('users-info')
+  .select('*')
+  .eq('email', email)
+  .single()
+  return data?.user_id
+}
+

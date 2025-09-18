@@ -29,13 +29,9 @@ export async function middleware(request: NextRequest) {
 
     // If user is authenticated and lands on base /dashboard, route them based on first-time logic
     if (user && request.nextUrl.pathname === '/dashboard') {
-      const createdAt = user.created_at ? new Date(user.created_at).getTime() : null
-      const lastSignInAt = user.last_sign_in_at ? new Date(user.last_sign_in_at).getTime() : null
-      const timeDeltaMs =
-        createdAt !== null && lastSignInAt !== null ? Math.abs(lastSignInAt - createdAt) : null
-      const isFirstSignIn = timeDeltaMs !== null && timeDeltaMs <= 10_000
-
-      const redirectTo = isFirstSignIn ? '/dashboard' : '/dashboard/mastery-zones'
+      const hasLastSignIn = Boolean(user.last_sign_in_at)
+      
+      const redirectTo = !hasLastSignIn ? '/dashboard' : '/dashboard/mastery-zones'
       if (request.nextUrl.pathname !== redirectTo) {
         return NextResponse.redirect(new URL(redirectTo, request.url))
       }

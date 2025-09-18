@@ -7,6 +7,7 @@ import InputField from "../ui/input-field";
 import { GoogleSignInButton } from "../ui/google-signin-button";
 import { LoginFormData } from "@/types";
 import ForgotPasswordModal from "../forgot-password";
+import { getLastSignInAt } from "@/lib/supabase/auth";
 
 interface LoginFormProps {
   searchParams: URLSearchParams;
@@ -52,7 +53,8 @@ export function LoginForm({ searchParams }: LoginFormProps) {
     setIsSubmitting(true);
 
     try {
-
+      const last_sign_in = await getLastSignInAt(formData.email)
+      debugger
       const loginData = await runWithSpan(
         "User Login",
         async () => {
@@ -74,14 +76,7 @@ export function LoginForm({ searchParams }: LoginFormProps) {
       const redirectedFrom = searchParams.get('redirectedFrom');
       let redirectTo = redirectedFrom || '/dashboard/mastery-zones';
 
-      const createdAt = loginData.user?.created_at ? new Date(loginData.user.created_at).getTime() : null;
-      const lastSignInAt = loginData.user?.last_sign_in_at ? new Date(loginData.user.last_sign_in_at).getTime() : null;
-      const timeDeltaMs = (createdAt !== null && lastSignInAt !== null)
-        ? Math.abs(lastSignInAt - createdAt)
-        : null;
-      const isFirstSignIn = timeDeltaMs !== null && timeDeltaMs <= 10_000;
-
-      if (isFirstSignIn) {
+      if (!last_sign_in) {
         redirectTo = '/dashboard';
       }
       
@@ -125,6 +120,7 @@ export function LoginForm({ searchParams }: LoginFormProps) {
       <div className={errors.email ? "mb-[0.6rem]" : "mb-[1.88rem]"}>
         <InputField
           type="email"
+          dataTestId={"email"}
           placeholder="Email address"
           value={formData.email}
           onChange={(val) => handleInputChange("email", val)}
@@ -138,6 +134,7 @@ export function LoginForm({ searchParams }: LoginFormProps) {
       <div className="mb-7 lg:w-[82.5%]">
         <InputField
           type="password"
+          dataTestId={"password"}
           placeholder="Password"
           value={formData.password}
           onChange={(val) => handleInputChange("password", val)}
