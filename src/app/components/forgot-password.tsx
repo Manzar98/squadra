@@ -68,6 +68,7 @@ export default function ForgotPasswordModal({ isOpen, onClose }: ForgotPasswordM
                             </label>
                             <InputField
                                 type="email"
+                                dataTestId={"email"}
                                 placeholder="name@example.com"
                                 value={email}
                                 onChange={setEmail}

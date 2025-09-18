@@ -141,7 +141,7 @@ export function ContentSlider() {
   }
 
   return (
-    <div className="flex flex-1 items-center p-4 sm:p-6 lg:p-[1.5rem] justify-center">
+    <div className="flex flex-1 items-center p-4 sm:p-6 lg:p-[1.5rem] justify-center" data-testid="content-slider">
     <div className="bg-white w-full h-full flex flex-col rounded-[6px] border border-gray-200">
       {/* Full screen height split into content and footer */}
       <div className="flex flex-col justify-between lg:min-h-auto">
@@ -176,6 +176,7 @@ export function ContentSlider() {
             ) : (
               <Button
                 onClick={nextSlide}
+                data-testid="next-button"
                 className="w-full max-w-[200px] h-12 sm:w-full sm:max-w-[240px] sm:h-14 lg:w-[13.88vw] lg:h-[6.22vh] bg-green-500 hover:bg-green-600 text-black font-[700] px-4 sm:px-6 lg:px-8 rounded-full text-[10px] sm:text-xs lg:text-[14px] font-heading tracking-[0.75px]"
               >
                 NEXT

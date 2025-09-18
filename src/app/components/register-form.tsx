@@ -73,6 +73,7 @@ export default function RegisterForm({ refCode, onSuccess }: RegisterFormProps) 
     <form className="space-y-6 max-w-[448px] lg:m-auto" onSubmit={handleSubmit}>
       <InputField
         type="text"
+        dataTestId={"name"}
         label="Name"
         placeholder="Name"
         value={formData.name}
@@ -82,6 +83,7 @@ export default function RegisterForm({ refCode, onSuccess }: RegisterFormProps) 
 
       <InputField
         type="email"
+        dataTestId={"email"}
         label="Email Address"
         placeholder="Email address"
         value={formData.email}
@@ -91,6 +93,7 @@ export default function RegisterForm({ refCode, onSuccess }: RegisterFormProps) 
 
       <InputField
         type="password"
+        dataTestId={"password"}
         label="Password"
         placeholder="Password"
         value={formData.password}
@@ -100,6 +103,7 @@ export default function RegisterForm({ refCode, onSuccess }: RegisterFormProps) 
 
       <InputField
         type="text"
+        dataTestId={"team-name"}
         label="Team Name"
         placeholder="Team name"
         value={formData.teamName}

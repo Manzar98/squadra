@@ -102,6 +102,7 @@ export default function ResetPage() {
               {/* Password Field */}
               <InputField
                 type="password"
+                dataTestId={"password"}
                 placeholder="Enter your new password here"
                 value={password}
                 onChange={setPassword}
@@ -111,6 +112,7 @@ export default function ResetPage() {
               {/* Confirm Password Field */}
               <InputField
                 type="password"
+                dataTestId={"confirm-password"}
                 placeholder="Re-enter your new password"
                 value={confirmPassword}
                 onChange={setConfirmPassword}

@@ -41,6 +41,23 @@ export default defineConfig({
           return null
         },
 
+        async confirmUserByEmail({ email }: { email: string }) {
+          // Find auth user_id via users-info by email
+          const { data: userInfo } = await supabaseAdmin
+            .from("users-info")
+            .select("user_id")
+            .eq("email", email)
+            .maybeSingle()
+
+          if (userInfo?.user_id) {
+            await supabaseAdmin.auth.admin.updateUserById(userInfo.user_id, {
+              email_confirm: true,
+            })
+          }
+
+          return null
+        },
+
         async createLoginTestUser({ email, password }: { email: string; password: string }) {
           
         

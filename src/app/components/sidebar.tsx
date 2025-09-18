@@ -42,6 +42,7 @@ export function Sidebar() {
           w-[85vw] max-w-[280px] h-[calc(100dvh-64px)]
           ${isOpen ? "translate-x-0" : "-translate-x-full"}
           xl:top-0 xl:translate-x-0 xl:static xl:w-[14vw] xl:h-screen xl:transform-none`}
+      data-testid="sidebar"
       >
         {/* Close Button (only for < xl) */}
         <button
