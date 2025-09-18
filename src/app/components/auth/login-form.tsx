@@ -54,7 +54,6 @@ export function LoginForm({ searchParams }: LoginFormProps) {
 
     try {
       const last_sign_in = await getLastSignInAt(formData.email)
-      debugger
       await runWithSpan(
         "User Login",
         async () => {
