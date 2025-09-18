@@ -84,7 +84,7 @@ export async function getLastSignInAt(email: string) {
 const getUserId = async (email: string) => {
 
   const supabase = await createClient();
-  const { data, error } = await supabase
+  const { data } = await supabase
   .from('users-info')
   .select('*')
   .eq('email', email)

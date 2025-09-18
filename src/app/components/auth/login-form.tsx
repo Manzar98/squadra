@@ -55,7 +55,7 @@ export function LoginForm({ searchParams }: LoginFormProps) {
     try {
       const last_sign_in = await getLastSignInAt(formData.email)
       debugger
-      const loginData = await runWithSpan(
+      await runWithSpan(
         "User Login",
         async () => {
           const { data, error: loginError } = await supabase.auth.signInWithPassword({
