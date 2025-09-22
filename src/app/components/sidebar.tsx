@@ -21,7 +21,7 @@ export function Sidebar() {
     <>
       {/* Hamburger Bar (visible on all < xl) */}
       <div className="fixed top-0 left-0 w-full z-50 bg-white py-4 px-4 shadow-md xl:hidden flex items-center justify-between">
-        <button onClick={() => setIsOpen(true)} className="text-black">
+        <button onClick={() => setIsOpen(true)} className="text-black" data-testid="hamburger-button">
           <Menu className="w-8 h-8" />
         </button>
         <ProfileDropDownMenu />

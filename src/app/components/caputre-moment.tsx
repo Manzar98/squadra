@@ -130,6 +130,7 @@ export default function CaptureAMoment() {
 								<TextArea
 									data-testid={"note"}
 									value={formData.note}
+									dataTestId="note"
 									onChange={handleNoteChange}
 									placeholder="A personal note makes your encouragement more meaningful and adding specific context helps them reflect on what they did so they can build on it."
 									className="w-full lg:w-[52%] h-[15.33vh] px-4 py-3 border border-gray-300 rounded-xl text-[16px] font-[600] text-black font-body placeholder-[#A3A4A3] resize-none focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent font-body"

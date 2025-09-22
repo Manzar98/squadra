@@ -5,17 +5,17 @@ describe('User Signup & Login Flow', () => {
   const password = 'Password123!';
 
 
-  before(() => {
-    // Ensure clean state
-    cy.task('deleteUserCompletely', { email: uniqueEmail });
-    cy.task('deleteUserCompletely', { email: duplicateEmail });
-  });
+  // before(() => {
+  //   // Ensure clean state
+  //   cy.task('deleteUserCompletely', { email: uniqueEmail });
+  //   cy.task('deleteUserCompletely', { email: duplicateEmail });
+  // });
 
-  after(() => {
-    // Cleanup all created users
-    cy.task('deleteUserCompletely', { email: uniqueEmail });
-    cy.task('deleteUserCompletely', { email: duplicateEmail });
-  });
+  // after(() => {
+  //   // Cleanup all created users
+  //   cy.task('deleteUserCompletely', { email: uniqueEmail });
+  //   cy.task('deleteUserCompletely', { email: duplicateEmail });
+  // });
 
   context('Signup Flow', () => {
     it('shows validation error when required fields are missing', () => {
@@ -158,25 +158,78 @@ describe('User Signup & Login Flow', () => {
     });
 
 
+
     it('signs in successfully and redirects to mastery-zones on returning login', () => {
       // First login to set last_sign_in_at
       cy.visit('/login');
       cy.get('[data-testid="email"]').type(duplicateEmail);
       cy.get('[data-testid="password"]').type(password);
       cy.contains('button', 'SIGN IN').click();
-      // Assert any dashboard component rendered
+
+      // Assert dashboard renders (first-time path)
       cy.contains('👋 Welcome!', { timeout: 15000 }).should('be.visible');
 
+      // Clear session to simulate "returning login"
       cy.clearCookies();
       cy.clearLocalStorage();
+      cy.window().then((win) => win.indexedDB.deleteDatabase('supabase.auth.token'));
 
-      // Second login should redirect to mastery-zones
+
+      // Second login
       cy.visit('/login');
       cy.get('[data-testid="email"]').type(duplicateEmail);
       cy.get('[data-testid="password"]').type(password);
       cy.contains('button', 'SIGN IN').click();
-      // Assert mastery-zones component heading renders
+
+      // ✅ Assert mastery-zones loads (not onboarding)
       cy.contains('Your Mastery Zones', { timeout: 15000 }).should('be.visible');
+
+
+      // If on a smaller screen, click the hamburger button to open the sidebar
+      cy.get('body').then(($body) => {
+        if ($body.find('[data-testid="hamburger-button"]').is(':visible')) {
+          cy.get('[data-testid="hamburger-button"]').click();
+        }
+      });
+      cy.get('[data-testid="sidebar"]').should('be.visible');
+      cy.wait(500); // wait for animation
+
+      cy.contains('button', 'GIVE A MOMENT').click();
+      cy.url().should('include', '/dashboard/give-moment');
+
+      // ✅ Select squadmate
+      cy.contains('Which Squadmate would you like to encourage?').click();
+      cy.contains('Dump user').click();
+
+      // ✅ Select skill and context
+      cy.contains('Which Flow Zone did you notice?').click();
+      cy.contains('Last all hands meeting').click();
+
+      // ✅ Select badge
+      cy.contains('button', '😎 Damn, you nailed it!').click();
+
+      // ✅ Add note
+      cy.get('[data-testid="note"]').type('Testing 123');
+
+      // ✅ Submit
+      cy.contains('button', 'SUBMIT MOMENT').click();
+      cy.contains("Woo hoo! You've just made", { timeout: 15000 }).should('be.visible');
+
+      // ✅ Redirect to team channel
+      cy.contains('button', 'GO TO TEAM CHANNEL').click();
+      cy.url().should('include', '/dashboard/channels');
     });
+
+    it('logs out successfully', () => {
+      cy.get('[data-testid="user-avatar"]').click();
+      cy.get('[data-testid="sign-out"]').click();
+
+      // Assert redirected to login
+      cy.location('pathname').should('eq', '/login');
+      cy.get('[data-testid="sign-in-button"]').should('be.visible');
+    });
+
+
+
   });
 });

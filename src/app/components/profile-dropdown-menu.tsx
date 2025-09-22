@@ -29,6 +29,7 @@ export default function ProfileDropDownMenu (){
     return (
         <CustomDropdown
             align="right"
+            data-testid="user-avatar"
             trigger={
                 <div className="w-15 h-15 bg-white rounded-full flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors border border-gray-200">
                     <span className="text-green-500 font-[600] text-[14px]">WM</span>
@@ -61,7 +62,7 @@ export default function ProfileDropDownMenu (){
                     </div>
                 </DropdownItem>
 
-                <DropdownItem onClick={handleSignOut}>
+                <DropdownItem onClick={handleSignOut} data-testid="sign-out" >
                     <div className="flex items-center font-body text-[18px] tracking-[0.5px] font-[500]">
                         Sign out
                     </div>
