@@ -85,6 +85,8 @@ export default function FileUpload({ value, onUploadComplete }: FileUploadProps)
           <Image
             src={previewUrl || '/thumb1.jpg'}
             alt="Avatar"
+            width={200}
+            height={200}
             className="w-full h-full object-cover"
           />
         </div>
