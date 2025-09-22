@@ -177,7 +177,7 @@ export default function CaptureAMoment({ userId }: { userId?: string }) {
 							className="font-heading bg-[#3FD24D] border-2 border-[#3FD24D] text-black font-[700] text-sm sm:min-w-[222px] transition-colors hover:bg-[#00b914] w-full sm:w-auto"
 							onClick={() => {
 								setIsSuccessOpen(false)
-								setFormData({ squadmateId: "", flowZoneId: "", reaction: "", note: "" })
+								setFormData({ squadmateId: "", flowZoneId: "", reaction: "", note: "", created_by: userId || "" })
 							}}
 						>
 							NEW MOMENT
