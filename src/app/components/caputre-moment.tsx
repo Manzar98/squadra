@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { useState } from "react"
 import { EnhancedFuzzyDropdown } from "../components/ui/enhanced-fuzzy-dropdown"
 import { Button } from "../components/ui/button"
@@ -17,7 +16,7 @@ import ProfileDropDownMenu from "./profile-dropdown-menu"
 
 
 
-export default function CaptureAMoment() {
+export default function CaptureAMoment({ userId }: { userId?: string }) {
 	const router = useRouter()
 	const toast = useToast()
 	const flowZones = useSelector(selectFlowZones)
@@ -31,6 +30,7 @@ export default function CaptureAMoment() {
 		flowZoneId: "",
 		reaction: "",
 		note: "",
+		created_by: userId || "",
 	})
 
 

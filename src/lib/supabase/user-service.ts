@@ -105,7 +105,8 @@ export async function createCaputreMomentFlow(form: CaputureMomentOfFlow) {
           user_info_id: form.squadmateId,
           flow_zone_id: form.flowZoneId,
           show_your_reaction: form.reaction,
-          personal_note: form.note
+          personal_note: form.note,
+          created_by: form.created_by,
         }
 
         const { error: insertError } = await supabase

@@ -45,7 +45,8 @@ export interface CaputureMomentOfFlow {
   squadmateId: string;
   flowZoneId: string;
   reaction: string;
-  note: string
+  note: string,
+  created_by: string;
 }
 
 
