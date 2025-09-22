@@ -8,7 +8,7 @@ export default function ProfileDropDownMenu (){
 
 
     const handleProfileSettings = () => {
-        router.push("/profile-settings")
+        router.push("/dashboard/profile")
     }
     
     const handleTeamSettings = () => {

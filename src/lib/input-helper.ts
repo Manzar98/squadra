@@ -20,8 +20,16 @@ export const isValidEmail = (email: string): boolean => {
   };
   
   export const isValidPhone = (phone: string): boolean => {
-    // Accepts international numbers (+countrycode) or local (digits only)
-    const regex = /^\+?[1-9]\d{7,14}$/;
-    return regex.test(phone.trim());
-  };
+    // Remove spaces and dashes for normalization
+    const normalized = phone.replace(/[\s-]/g, '')
+  
+    // Accepts:
+    // - +923419055442
+    // - 923419055442
+    // - 03419055442
+    const regex = /^(?:\+92|92|0)?3\d{9}$/
+  
+    return regex.test(normalized)
+  }
+  
   

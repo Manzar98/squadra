@@ -41,6 +41,14 @@ export interface RegisterFormData {
   emailConsent: boolean;
 }
 
+export interface UpdateFormData {
+  name: string;
+  teamRole: string;
+  phone_number: string;
+  thingsYouLike: string[];
+  profile_pic_url: string;
+}
+
 export interface CaputureMomentOfFlow {
   squadmateId: string;
   flowZoneId: string;

@@ -2,7 +2,7 @@
 
 import { createClient } from "@/lib/supabase/auth/server";
 import { runWithSpan } from "@/lib/api-client";
-import { CaputureMomentOfFlow, RegisterFormData } from "@/types";
+import { CaputureMomentOfFlow, RegisterFormData, UpdateFormData } from "@/types";
 
 
 export async function validateReferralCode(code: string): Promise<string | null> {
@@ -92,6 +92,91 @@ export async function signUpWithProfile(
     throw error;
   }
 }
+
+
+
+export async function updateProfile(form: UpdateFormData) {
+  const supabase = await createClient()
+  const { name, teamRole, phone_number, thingsYouLike, profile_pic_url } = form
+
+  try {
+
+    const thingsYouLikeStr = thingsYouLike.toString()
+    // Get current user
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser()
+
+    if (!user || authError) {
+      throw new Error("User not authenticated")
+    }
+
+    return await runWithSpan("Update profile", async () => {
+      const { error: updateError } = await supabase
+        .from("users-info")
+        .update({
+          name,
+          team_role: teamRole,
+          phone_number,
+          things_you_like: thingsYouLikeStr,
+          profile_pic_url,
+        })
+        .eq("user_id", user.id)
+
+      if (updateError) throw updateError
+
+      return { success: true, msg: "Profile updated" }
+    })
+  } catch (error) {
+    console.error("Update profile failed:", error)
+    throw error
+  }
+}
+
+
+
+export async function getProfile() {
+  const supabase = await createClient()
+
+  try {
+    // Get current user
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser()
+
+    if (!user || authError) {
+      throw new Error("User not authenticated")
+    }
+
+    // Fetch only required fields
+    const { data, error } = await supabase
+      .from("users-info")
+      .select("name, team_role, phone_number, things_you_like, profile_pic_url, email")
+      .eq("user_id", user.id)
+      .single()
+
+    if (error) throw error
+
+    return {
+      email:data.email,
+      name: data.name,
+      teamRole: data.team_role,
+      phone_number: data.phone_number,
+      thingsYouLike: data.things_you_like,
+      profile_pic_url: data.profile_pic_url,
+    }
+  } catch (error) {
+    console.error("Get profile failed:", error)
+    throw error
+  }
+}
+
+
+
+
+
 
 
 

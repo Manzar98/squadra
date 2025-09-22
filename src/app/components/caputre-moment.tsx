@@ -69,8 +69,6 @@ export default function CaptureAMoment({ userId }: { userId?: string }) {
 		}
 	}
 
-
-
 	return (
 		<>
 			<div className="mt-22 xl:mt-0 flex flex-1 flex-col item-center px-[1.5rem] pb-[3.9rem] justify-center">

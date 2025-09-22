@@ -1,22 +1,46 @@
 'use client'
 
-import { Input } from './ui/input'
-import Swal from 'sweetalert2'
+import { getSignedUrl } from '@/lib/supabase/storage/client-helper'
+import Image from 'next/image'
+import { useState, useEffect } from 'react'
 
 
-export default function UploadPage() {
+interface FileUploadProps {
+  value?: string // stored file path from DB
+  onUploadComplete?: (path: string) => void
+}
+
+export default function FileUpload({ value, onUploadComplete }: FileUploadProps) {
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+
+  const MAX_SIZE = 2 * 1024 * 1024 // 2MB
+  const ALLOWED_TYPES = ['image/png', 'image/jpeg']
+
+  useEffect(() => {
+    if (!value) return
+    const fetchUrl = async () => {
+      try {
+        const signedUrl = await getSignedUrl(value, "user-uploads")
+        setPreviewUrl(signedUrl)
+      } catch (err) {
+        console.error("Failed to fetch signed URL:", err)
+      }
+    }
+  
+    fetchUrl()
+  }, [value])
+  
 
   const handleUpload = async (selectedFile: File) => {
     if (!selectedFile) return
 
-    const token = sessionStorage.getItem('supabaseToken')
+    if (!ALLOWED_TYPES.includes(selectedFile.type)) {
+      alert('Only PNG and JPG files are allowed.')
+      return
+    }
 
-    if (!token) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Not logged in',
-        text: 'Please log in to upload files.',
-      })
+    if (selectedFile.size > MAX_SIZE) {
+      alert('File size must be less than 2MB.')
       return
     }
 
@@ -25,42 +49,47 @@ export default function UploadPage() {
 
     const res = await fetch('/api/uploads', {
       method: 'POST',
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
       body: formData,
     })
 
     const json = await res.json()
     if (res.ok) {
-      Swal.fire({
-        icon: 'success',
-        title: 'Upload Successful',
-        text: `Uploaded to: ${json.url}`,
-      })
+      // Preview uploaded image (full URL returned from API)
+      setPreviewUrl(json.url)
+
+      // Store only the path in parent (DB)
+      onUploadComplete?.(json.path)
     } else {
-      Swal.fire({
-        icon: 'error',
-        title: 'Upload Failed',
-        text: json.error || 'Unknown error',
-      })
+      alert(json.error || 'Upload failed')
     }
   }
 
   return (
-    <div className="max-w-md mb-6">
-        <label className="block mb-2 text-sm font-medium text-gray-700">
-            Upload File
-        </label>
-      <Input
+    <div className="flex flex-col items-center">
+      <input
+        id="avatarUpload"
         type="file"
+        accept="image/png,image/jpeg"
+        className="hidden"
         onChange={(e) => {
           const selectedFile = e.target.files?.[0] || null
-          if (selectedFile) handleUpload(selectedFile)
+          if (selectedFile) {
+            setPreviewUrl(URL.createObjectURL(selectedFile)) // instant preview
+            handleUpload(selectedFile)
+          }
         }}
-        className="pl-4 py-3 font-body"
       />
-      {/* Removed Upload button */}
+
+      <label htmlFor="avatarUpload" className="cursor-pointer flex flex-col items-center">
+        <div className="w-50 h-50 rounded-full overflow-hidden border-2 border-gray-300">
+          <Image
+            src={previewUrl || '/thumb1.jpg'}
+            alt="Avatar"
+            className="w-full h-full object-cover"
+          />
+        </div>
+        <span className="mt-3 text-green-600 font-medium">CHANGE AVATAR</span>
+      </label>
     </div>
   )
 }

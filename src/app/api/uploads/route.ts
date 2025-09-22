@@ -1,16 +1,8 @@
-// app/api/upload/route.ts
 import { NextResponse } from 'next/server'
 import { createClient } from '../../../lib/supabase/auth/server'
 
 export async function POST(request: Request) {
-  const authHeader = request.headers.get('authorization')
-  const token = authHeader?.replace('Bearer ', '')
-
-  if (!token) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
-
-  const supabase = await createClient();
+  const supabase = await createClient()
 
   const {
     data: { user },
@@ -28,11 +20,22 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'No file uploaded' }, { status: 400 })
   }
 
+  // ✅ Validate file type
+  if (!['image/png', 'image/jpeg'].includes(file.type)) {
+    return NextResponse.json({ error: 'Only PNG and JPG are allowed' }, { status: 400 })
+  }
+
+  // ✅ Validate file size (2MB)
+  const MAX_SIZE = 2 * 1024 * 1024
+  if (file.size > MAX_SIZE) {
+    return NextResponse.json({ error: 'File size exceeds 2MB' }, { status: 400 })
+  }
+
   const fileExt = file.name.split('.').pop()
   const filePath = `${user.id}/${Date.now()}.${fileExt}`
 
   const { error: uploadError } = await supabase.storage
-    .from('user-uploads') // Your bucket name
+    .from('user-uploads')
     .upload(filePath, file, {
       cacheControl: '3600',
       upsert: false,
@@ -43,9 +46,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: uploadError.message }, { status: 500 })
   }
 
-  const { publicUrl } = supabase.storage
-    .from('user-uploads')
-    .getPublicUrl(filePath).data
+  const {
+    data: { publicUrl },
+  } = supabase.storage.from('user-uploads').getPublicUrl(filePath)
 
   return NextResponse.json({ path: filePath, url: publicUrl })
 }
