@@ -12,7 +12,7 @@ import { useProfile } from "@/hooks/useProfile"
 
 export default function ProfileComponent() {
 	const toast = useToast()
-	const { profile, updateProfileData, loading: profileLoading } = useProfile()
+	const { profile, updateProfileData } = useProfile()
 	// const [isRoleError, isSetRoleError] = useState(false)
 	const [isSubmitting, setIsSubmitting] = useState(false)
 	const [fileUploadedUrl, setFileUploadedUrl] = useState("")

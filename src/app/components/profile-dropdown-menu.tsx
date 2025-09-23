@@ -3,6 +3,7 @@ import { CustomDropdown, DropdownItem } from "./drop-down"
 import { logoutAction } from "@/lib/supabase/auth"
 import { useRouter } from "next/navigation"
 import { useProfile } from "@/hooks/useProfile"
+import Image from "next/image"
 
 export default function ProfileDropDownMenu (){
     const router = useRouter()
@@ -35,8 +36,10 @@ export default function ProfileDropDownMenu (){
             trigger={
                 <div className="w-15 h-15 bg-white rounded-full flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors border border-gray-200">
                     {profile?.profile_pic_url ? (
-                        <img 
+                        <Image 
                             src={profile.profile_pic_url} 
+                            width={40}
+                            height={40}
                             alt="Profile" 
                             className="w-full h-full rounded-full object-cover"
                         />

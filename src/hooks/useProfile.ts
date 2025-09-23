@@ -1,6 +1,6 @@
 import { useEffect, useCallback } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
-import { RootState, AppDispatch } from '../store'
+import {  AppDispatch } from '../store'
 import { 
   setProfile, 
   setProfileLoading, 
