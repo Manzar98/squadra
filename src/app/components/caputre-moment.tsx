@@ -27,7 +27,7 @@ export default function CaptureAMoment({ userId }: { userId?: string }) {
 
 	const [formData, setFormData] = useState({
 		squadmateId: "",
-		flowZoneId: "",
+		skillId: "",
 		reaction: "",
 		note: "",
 		created_by: userId || "",
@@ -46,7 +46,7 @@ export default function CaptureAMoment({ userId }: { userId?: string }) {
 
 	const handleSubmit = async () => {
 		// Validate form data
-		if (!formData.squadmateId || !formData.flowZoneId || !formData.reaction) {
+		if (!formData.squadmateId || !formData.skillId || !formData.reaction) {
 			toast.error("Missing Information", "Please fill in all required fields before submitting.")
 			return
 		}
@@ -95,8 +95,8 @@ export default function CaptureAMoment({ userId }: { userId?: string }) {
 								label="Which Flow Zone did you notice?"
 								options={flowZones.map((flowZone) => ({ id: flowZone.id.toString(), name: flowZone.name }))}
 								placeholder="Skill or trait name e.g. Creativity, Empathy"
-								value={formData.flowZoneId}
-								onChange={(id) => setFormData({ ...formData, flowZoneId: id })}
+								value={formData.skillId}
+								onChange={(id) => setFormData({ ...formData, skillId: id })}
 								className="w-[451px] h-[46px] mb-8"
 								isShow={true}
 							/>
@@ -177,7 +177,7 @@ export default function CaptureAMoment({ userId }: { userId?: string }) {
 							className="font-heading bg-[#3FD24D] border-2 border-[#3FD24D] text-black font-[700] text-sm sm:min-w-[222px] transition-colors hover:bg-[#00b914] w-full sm:w-auto"
 							onClick={() => {
 								setIsSuccessOpen(false)
-								setFormData({ squadmateId: "", flowZoneId: "", reaction: "", note: "", created_by: userId || "" })
+								setFormData({ squadmateId: "", skillId: "", reaction: "", note: "", created_by: userId || "" })
 							}}
 						>
 							NEW MOMENT
