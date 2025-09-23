@@ -51,10 +51,10 @@ export interface UpdateFormData {
 
 export interface CaputureMomentOfFlow {
   squadmateId: string;
-  flowZoneId: string;
+  skillId: string;
   reaction: string;
   note: string,
-  created_by: string;
+  created_by: string; 
 }
 
 export interface ProfileData {

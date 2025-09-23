@@ -188,7 +188,7 @@ export async function createCaputreMomentFlow(form: CaputureMomentOfFlow) {
       async () => {
         const momentFlow = {
           user_info_id: form.squadmateId,
-          flow_zone_id: form.flowZoneId,
+          skill_id: form.skillId,
           show_your_reaction: form.reaction,
           personal_note: form.note,
           created_by: form.created_by,
