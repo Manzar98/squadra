@@ -21,6 +21,7 @@ export default function FileUpload({ value, onUploadComplete }: FileUploadProps)
     const fetchUrl = async () => {
       try {
         const signedUrl = await getSignedUrl(value, "user-uploads")
+        debugger
         setPreviewUrl(signedUrl)
       } catch (err) {
         console.error("Failed to fetch signed URL:", err)
