@@ -9,7 +9,7 @@ import { TextArea } from "../components/ui/textarea"
 import { useToast } from "../components/ui/toast"
 import Modal from "../components/ui/modal"
 import { useSelector } from "react-redux"
-import { selectFlowZones } from "../../store"
+import { selectSkills } from "../../store"
 import { useTeamMembers } from "@/hooks/useTeamMembers"
 import { createCaputreMomentFlow } from "@/lib/supabase/user-service"
 import ProfileDropDownMenu from "./profile-dropdown-menu"
@@ -19,7 +19,7 @@ import ProfileDropDownMenu from "./profile-dropdown-menu"
 export default function CaptureAMoment({ userId }: { userId?: string }) {
 	const router = useRouter()
 	const toast = useToast()
-	const flowZones = useSelector(selectFlowZones)
+	const flowZones = useSelector(selectSkills)
 	const { teamMembers } = useTeamMembers()
 	const [isSubmitting, setIsSubmitting] = useState(false)
 	const [isSuccessOpen, setIsSuccessOpen] = useState(false)
