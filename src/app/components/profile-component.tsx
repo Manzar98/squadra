@@ -8,10 +8,11 @@ import { TEAM_ROLES } from "@/constants/team-roles"
 import { Button } from "./ui/button"
 import FileUpload from "./file-upload"
 import { useToast } from "./ui/toast"
-import { updateProfile, getProfile } from "@/lib/supabase/user-service"
+import { useProfile } from "@/hooks/useProfile"
 
 export default function ProfileComponent() {
 	const toast = useToast()
+	const { profile, updateProfileData, loading: profileLoading } = useProfile()
 	// const [isRoleError, isSetRoleError] = useState(false)
 	const [isSubmitting, setIsSubmitting] = useState(false)
 	const [fileUploadedUrl, setFileUploadedUrl] = useState("")
@@ -22,26 +23,18 @@ export default function ProfileComponent() {
 		thingsYouLike: [] as string[],
 	})
 
-	// Load profile on mount
+	// Load profile data into form when profile is available
 	useEffect(() => {
-		const loadProfile = async () => {
-			try {
-				const profile = await getProfile()
-				setFormData({
-					name: profile.name || "",
-					teamRole: profile.teamRole || "",
-					phone_number: profile.phone_number || "",
-					thingsYouLike: profile.thingsYouLike || [],
-				})
-				setFileUploadedUrl(profile.profile_pic_url || "")
-			} catch (err) {
-				console.error("Failed to load profile:", err)
-				toast.error("Load Failed", "Could not fetch profile data.")
-			}
+		if (profile) {
+			setFormData({
+				name: profile.name || "",
+				teamRole: profile.teamRole || "",
+				phone_number: profile.phone_number || "",
+				thingsYouLike: profile.thingsYouLike || [],
+			})
+			setFileUploadedUrl(profile.profile_pic_url || "")
 		}
-
-		loadProfile()
-	}, [toast])
+	}, [profile])
 
 	const handleInputChange = (field: keyof typeof formData, value: string) => {
 		setFormData((prev) => ({ ...prev, [field]: value }))
@@ -67,7 +60,7 @@ export default function ProfileComponent() {
 		}
 
 		try {
-			await updateProfile({
+			await updateProfileData({
 				name,
 				teamRole,
 				phone_number,

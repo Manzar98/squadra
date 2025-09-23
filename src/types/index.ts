@@ -57,5 +57,14 @@ export interface CaputureMomentOfFlow {
   created_by: string;
 }
 
+export interface ProfileData {
+  email: string;
+  name: string;
+  teamRole: string;
+  phone_number: string;
+  thingsYouLike: string[];
+  profile_pic_url: string;
+}
+
 
 
