@@ -129,7 +129,7 @@ export default function MasteryZone() {
                   <div className="flex items-start mb-3">
                     {/* Column 1: Image */}
                     <div className="flex-shrink-0 flex items-center justify-center mr-4">
-                      <Image src="/enthusiastic.png" alt="Enthusiastic" width={92} height={92} className="w-18 h-18 lg:w-24 lg:h-24" />
+                      <Image src="/Enthusiastic.png" alt="Enthusiastic" width={92} height={92} className="w-18 h-18 lg:w-24 lg:h-24" />
                     </div>
                     {/* Column 2: Content */}
                     <div className="flex-1">
@@ -181,7 +181,7 @@ export default function MasteryZone() {
                   <div className="flex items-start mb-3">
                     {/* Column 1: Image */}
                     <div className="flex-shrink-0 flex items-center justify-center mr-4">
-                      <Image src="/resolving.png" alt="Enthusiastic" width={96} height={96} className="w-18 h-18 lg:w-24 lg:h-24" />
+                      <Image src="/Resolving.png" alt="Enthusiastic" width={96} height={96} className="w-18 h-18 lg:w-24 lg:h-24" />
                     </div>
                     {/* Column 2: Content */}
                     <div className="flex-1">
@@ -274,7 +274,7 @@ export default function MasteryZone() {
                 <div className="flex items-start mb-3">
                   {/* Column 1: Image */}
                   <div className="flex-shrink-0 flex items-center justify-center mr-4">
-                    <Image src="/collaboration.png" alt="Collaboration" width={96} height={96} className="w-18 h-18 lg:w-24 lg:h-24" />
+                    <Image src="/Collaboration.png" alt="Collaboration" width={96} height={96} className="w-18 h-18 lg:w-24 lg:h-24" />
                   </div>
                   {/* Column 2: Content */}
                   <div className="flex-1">
@@ -320,7 +320,7 @@ export default function MasteryZone() {
                 <div className="flex items-start mb-3">
                   {/* Column 1: Image */}
                   <div className="flex-shrink-0 flex items-center justify-center mr-4">
-                    <Image src="/optimism.png" alt="Optimism" width={96} height={96} className="w-18 h-18 lg:w-24 lg:h-24" />
+                    <Image src="/Optimism.png" alt="Optimism" width={96} height={96} className="w-18 h-18 lg:w-24 lg:h-24" />
                   </div>
                   {/* Column 2: Content */}
                   <div className="flex-1">
@@ -366,7 +366,7 @@ export default function MasteryZone() {
                 <div className="flex items-start mb-3">
                   {/* Column 1: Image */}
                   <div className="flex-shrink-0 flex items-center justify-center mr-4">
-                    <Image src="/organised.png" alt="organised" width={96} height={96} className="w-18 h-18 lg:w-24 lg:h-24" />
+                    <Image src="/Organised.png" alt="organised" width={96} height={96} className="w-18 h-18 lg:w-24 lg:h-24" />
                   </div>
                   {/* Column 2: Content */}
                   <div className="flex-1">
@@ -412,7 +412,7 @@ export default function MasteryZone() {
                 <div className="flex items-start mb-3">
                   {/* Column 1: Image */}
                   <div className="flex-shrink-0 flex items-center justify-center mr-4">
-                    <Image src="/creativity.png" alt="creativity" width={96} height={96} className="w-18 h-18 lg:w-24 lg:h-24" />
+                    <Image src="/Creativity.png" alt="creativity" width={96} height={96} className="w-18 h-18 lg:w-24 lg:h-24" />
                   </div>
                   {/* Column 2: Content */}
                   <div className="flex-1">
@@ -458,7 +458,7 @@ export default function MasteryZone() {
                 <div className="flex items-start mb-3">
                   {/* Column 1: Image */}
                   <div className="flex-shrink-0 flex items-center justify-center mr-4">
-                    <Image src="/resilience.png" alt="resilience" width={96} height={96} className="w-18 h-18 lg:w-24 lg:h-24" />
+                    <Image src="/Resilience.png" alt="resilience" width={96} height={96} className="w-18 h-18 lg:w-24 lg:h-24" />
                   </div>
                   {/* Column 2: Content */}
                   <div className="flex-1">
